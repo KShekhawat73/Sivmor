@@ -56,7 +56,6 @@
             <input type="password" id="password" placeholder="Password">
             <button onclick="handleLogin()">Login</button>
             
-            <!-- 📝 रजिस्टर हियर पर क्लिक करते ही मैसेज दिखेगा -->
             <div class="register-container">
                 Don't have an account? <span onclick="showRegisterNotice()" class="register-link">Register Here</span>
             </div>
@@ -89,7 +88,7 @@
                 <p>Track, filter, and view regional store inventory counts from Sheet1.</p>
             </a>
 
-            <a href="https://kshekhawat73.github.io/stock-value/?sheet=Sheet2" target="_blank" class="card" id="app-f-outstanding">
+            <a href="https://kshekhawat73.github.io/stock-value/?sheet=Sheet2" target="_blank" class="card" id="app-stock-value">
                 <span class="badge finance2">Value Tracking</span>
                 <h2>Stock Value Store Wise</h2>
                 <p>Monitor corporate value tracking, regional cash flows, and store details from Sheet2 & Sheet3.</p>
@@ -117,7 +116,7 @@
             const attIdx = headers.indexOf("attendance");
             const outIdx = headers.indexOf("outstanding");
             const stockIdx = headers.indexOf("stock"); 
-            const fOutIdx = headers.indexOf("f_outstanding");
+            const valIdx = headers.indexOf("stock-value"); // 🛠️ आपका नया कॉलम नाम यहाँ ट्रैक होगा
             const storeIdx = headers.indexOf("allowed_stores");
 
             for (let i = 1; i < lines.length; i++) {
@@ -131,7 +130,7 @@
                     attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].toLowerCase() : "no",
                     outstanding: currentline[outIdx !== -1 ? outIdx : 3] ? currentline[outIdx !== -1 ? outIdx : 3].toLowerCase() : "no",
                     stock: currentline[stockIdx !== -1 ? stockIdx : 4] ? currentline[stockIdx !== -1 ? stockIdx : 4].toLowerCase() : "no",
-                    f_outstanding: currentline[fOutIdx !== -1 ? fOutIdx : 5] ? currentline[fOutIdx !== -1 ? fOutIdx : 5].toLowerCase() : "no",
+                    stock_value: currentline[valIdx !== -1 ? valIdx : 5] ? currentline[valIdx !== -1 ? valIdx : 5].toLowerCase() : "no",
                     allowed_stores: currentline[storeIdx !== -1 ? storeIdx : 6] ? currentline[storeIdx !== -1 ? storeIdx : 6].toLowerCase() : ""
                 };
             }
@@ -161,8 +160,8 @@
                 if (userDatabase[userIn] && userDatabase[userIn].password === passIn) {
                     const userData = userDatabase[userIn];
 
-                    // 🛠️ अगर आपने गूगल शीट में आईडी पासवर्ड लिख दिया है पर सारी सर्विसेज 'no' हैं
-                    if (userData.attendance !== 'yes' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.f_outstanding !== 'yes') {
+                    // 🛠️ अगर यूजर की सारी सर्विसेज 'no' हैं
+                    if (userData.attendance !== 'yes' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes') {
                         msg.style.color = "#e67e22";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -176,7 +175,7 @@
                     if (userData.attendance === 'yes') document.getElementById('app-attendance').style.display = 'block';
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
                     if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
-                    if (userData.f_outstanding === 'yes') document.getElementById('app-f-outstanding').style.display = 'block';
+                    if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
                     
                 } else {
                     msg.style.color = "#e74c3c";
