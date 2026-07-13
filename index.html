@@ -50,7 +50,7 @@
     <div id="dashboard-content">
         <h1>Internal Operations Hub</h1>
         <p class="subtitle">Select an application below to get started</p>
-        <button class="logout-btn" onclick="location.reload()">Log Out</button>
+        <button class="logout-btn" onclick="logoutUser()">Log Out</button>
 
         <div class="grid">
             <a href="https://kshekhawat73.github.io/attendance/" target="_blank" class="card" id="app-attendance">
@@ -90,7 +90,9 @@
                 users[username] = {
                     password: currentline[1],
                     attendance: currentline[2] ? currentline[2].toLowerCase() : "no",
-                    outstanding: currentline[3] ? currentline[3].toLowerCase() : "no"
+                    outstanding: currentline[3] ? currentline[3].toLowerCase() : "no",
+                    // Captures your brand new 5th column data
+                    allowed_stores: currentline[4] ? currentline[4].toLowerCase() : ""
                 };
             }
             return users;
@@ -126,6 +128,9 @@
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
 
+                    // 🛠️ NEW: Safely hands off permissions details to local browser memory
+                    localStorage.setItem('allowed_stores', userData.allowed_stores || '');
+
                     // Reveal matching applications based on "yes" settings
                     if (userData.attendance === 'yes') document.getElementById('app-attendance').style.display = 'block';
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
@@ -138,6 +143,12 @@
                 msg.style.color = "#e74c3c";
                 msg.innerText = "Network error syncing permissions sheet.";
             }
+        }
+
+        function logoutUser() {
+            // Clears out active storage configurations upon logging out
+            localStorage.removeItem('allowed_stores');
+            location.reload();
         }
     </script>
 </body>
