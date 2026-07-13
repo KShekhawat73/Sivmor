@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Management Dashboard</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f9; color: #333; display: flex; flex-direction: column; align-items: center; min-height: 100vh; padding: 40px 20px; }
+        h1 { margin-bottom: 10px; color: #2c3e50; }
+        p.subtitle { color: #7f8c8d; margin-bottom: 40px; font-size: 1.1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 900px; width: 100%; }
+        .card { background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; border: 1px solid #e2e8f0; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); border-color: #3498db; }
+        .card h2 { color: #2c3e50; margin-bottom: 12px; font-size: 1.4rem; }
+        .card p { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+        .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; }
+    </style>
+</head>
+<body>
+
+    <h1>Internal Operations Hub</h1>
+    <p class="subtitle">Select an application below to get started</p>
+
+    <div class="grid">
+        
+        <a href="https://your-username.github.io/your-attendance-repo-name/" target="_blank" class="card">
+            <span class="badge">Management</span>
+            <h2>Manager Attendance</h2>
+            <p>Track, view, and manage daily staff attendance logs and clock-in metrics.</p>
+        </a>
+
+        <a href="https://your-username.github.io/your-outstanding-repo-name/" target="_blank" class="card">
+            <span class="badge">Finance</span>
+            <h2>Stores Outstanding</h2>
+            <p>Monitor pending balances, store invoices, and credit details in real-time.</p>
+        </a>
+
+        </div>
+
+</body>
+</html>
