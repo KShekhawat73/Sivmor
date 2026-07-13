@@ -10,9 +10,41 @@
         h1 { margin-bottom: 10px; color: #2c3e50; }
         p.subtitle { color: #7f8c8d; margin-bottom: 40px; font-size: 1.1rem; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 900px; width: 100%; }
-        .card { background: white; border-radius: 8px; padding: 30px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; color: inherit; border: 1px solid #e2e8f0; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); border-color: #3498db; }
-        .card h2 { color: #2c3e50; margin-bottom: 12px; font-size: 1.4rem; }
+        
+        /* Base Card Styling */
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            padding: 30px; 
+            text-align: center; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.03); 
+            text-decoration: none; 
+            color: inherit; 
+            border: 1px solid #e2e8f0;
+            /* Handles the smooth animation transition for everything */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            cursor: pointer;
+        }
+        
+        /* Hover Effects */
+        .card:hover { 
+            transform: translateY(-8px); 
+            box-shadow: 0 12px 20px rgba(52, 152, 219, 0.15); 
+            border-color: #3498db; 
+        }
+
+        /* Changes title color dynamically on hover */
+        .card:hover h2 {
+            color: #0369a1;
+        }
+
+        /* Active Click Effect (Pressed state) */
+        .card:active {
+            transform: translateY(-2px) scale(0.98);
+            box-shadow: 0 5px 10px rgba(52, 152, 219, 0.1);
+        }
+
+        .card h2 { color: #2c3e50; margin-bottom: 12px; font-size: 1.4rem; transition: color 0.2s ease; }
         .card p { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
         .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; }
     </style>
