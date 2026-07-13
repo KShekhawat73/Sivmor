@@ -31,6 +31,10 @@
         .card h2 { color: #2c3e50; margin-bottom: 12px; font-size: 1.4rem; transition: color 0.2s ease; }
         .card p { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
         .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; }
+        
+        /* Specific badge color for Operations/Stock to differentiate */
+        .badge.ops { background: #fef3c7; color: #b45309; }
+        
         .logout-btn { background: #e74c3c; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-bottom: 30px; font-weight: 600; transition: background 0.2s; }
         .logout-btn:hover { background: #c0392b; }
     </style>
@@ -64,35 +68,45 @@
                 <h2>Stores Outstanding</h2>
                 <p>Monitor pending balances, store invoices, and credit details in real-time.</p>
             </a>
+
+            <a href="https://kshekhawat73.github.io/stock/" target="_blank" class="card" id="app-stock">
+                <span class="badge ops">Operations</span>
+                <h2>Live Stock Tracker</h2>
+                <p>Track, filter, and view regional store inventory counts and MOP configurations in real-time.</p>
+            </a>
         </div>
     </div>
 
     <script>
-        // 🛠️ LINKED TO YOUR LIVE GOOGLE SHEET
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjOK2FMrqyQHeIIITmiJ_vKB88pBceqYLQa4rUFzReHNF0Pybl7afELbIPHiu3jypMc4vS0UtGEWmu/pub?output=csv";
 
-        // Processes the sheet rows safely into usable user objects
         function parseCSV(csvText) {
             const lines = csvText.split("\n");
             if(lines.length < 2) return {};
             
-            // Clean out line breaks and spaces from headers
             const headers = lines[0].split(",").map(h => h.replace(/[\r\n]+/g, '').trim().toLowerCase());
             const users = {};
+
+            // Dynamic tracking for target columns based on their headers
+            const passIdx = headers.indexOf("password");
+            const attIdx = headers.indexOf("attendance");
+            const outIdx = headers.indexOf("outstanding");
+            const stockIdx = headers.indexOf("stock"); // Looks for 'stock' header in CSV
+            const storeIdx = headers.indexOf("allowed_stores");
 
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
                 
-                // Split the columns safely
                 const currentline = lines[i].split(",").map(item => item.replace(/[\r\n]+/g, '').trim());
                 const username = currentline[0].toLowerCase();
                 
                 users[username] = {
-                    password: currentline[1],
-                    attendance: currentline[2] ? currentline[2].toLowerCase() : "no",
-                    outstanding: currentline[3] ? currentline[3].toLowerCase() : "no",
-                    // Captures your brand new 5th column data
-                    allowed_stores: currentline[4] ? currentline[4].toLowerCase() : ""
+                    password: currentline[passIdx !== -1 ? passIdx : 1],
+                    attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].toLowerCase() : "no",
+                    outstanding: currentline[outIdx !== -1 ? outIdx : 3] ? currentline[outIdx !== -1 ? outIdx : 3].toLowerCase() : "no",
+                    // Custom mapping fallback to index 4 or 5 if stock header isn't matched explicitly
+                    stock: currentline[stockIdx !== -1 ? stockIdx : 4] ? currentline[stockIdx !== -1 ? stockIdx : 4].toLowerCase() : "no",
+                    allowed_stores: currentline[storeIdx !== -1 ? storeIdx : 5] ? currentline[storeIdx !== -1 ? storeIdx : 5].toLowerCase() : ""
                 };
             }
             return users;
@@ -113,27 +127,27 @@
             msg.innerText = "Verifying access permissions...";
 
             try {
-                // Adds a unique timestamp parameter to prevent the browser from caching old spreadsheet data
                 const liveUrl = SHEET_CSV_URL + "&cb=" + new Date().getTime();
-                
                 const response = await fetch(liveUrl);
                 const csvText = await response.text();
                 const userDatabase = parseCSV(csvText);
 
-                // Check if user credentials match
                 if (userDatabase[userIn] && userDatabase[userIn].password === passIn) {
                     const userData = userDatabase[userIn];
 
-                    // Transition out the login wall
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
 
-                    // 🛠️ NEW: Safely hands off permissions details to local browser memory
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    // Reveal matching applications based on "yes" settings
+                    // Display permitted cards dynamically
                     if (userData.attendance === 'yes') document.getElementById('app-attendance').style.display = 'block';
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
+                    
+                    // 📦 Stock Tracking access validation
+                    if (userData.stock === 'yes' || userData.stock === '') {
+                        document.getElementById('app-stock').style.display = 'block';
+                    }
                 } else {
                     msg.style.color = "#e74c3c";
                     msg.innerText = "Access Denied. Account details are incorrect or pending approval.";
@@ -146,7 +160,6 @@
         }
 
         function logoutUser() {
-            // Clears out active storage configurations upon logging out
             localStorage.removeItem('allowed_stores');
             location.reload();
         }
