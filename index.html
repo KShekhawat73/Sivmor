@@ -13,11 +13,11 @@
         .auth-box { background: white; padding: 35px 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); text-align: center; max-width: 420px; width: 100%; border: 1px solid rgba(226, 232, 240, 0.8); position: relative; }
         
         /* 📸 लोगो स्टाइलिंग */
-        .auth-logo { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; margin-bottom: 20px; border: 2px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .auth-logo { width: 120px; height: 120px; object-fit: cover; border-radius: 50%; margin-bottom: 20px; border: 2px solid #3498db; box-shadow: 0 4px 10px rgba(0,0,0,0.05); background-color: #f8fafc; }
         
         .auth-box h2 { margin-bottom: 25px; color: #1e293b; font-weight: 700; font-size: 1.7rem; letter-spacing: -0.5px; }
         
-        /* 🎨 Updated Inputs to match the exact design style */
+        /* 🎨 Inputs styling */
         .auth-box input { width: 100%; padding: 14px 16px; margin: 10px 0; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; outline: none; transition: all 0.2s ease-in-out; background-color: #eef4ff; color: #1e293b; }
         .auth-box input:focus { border-color: #3498db; background-color: #ffffff; box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.15); }
         
@@ -58,7 +58,7 @@
 
     <div id="auth-screen">
         <div class="auth-box">
-            <img src="https://kshekhawat73.github.io/LOGO.jpg" alt="SiVMOR Logo" class="auth-logo" onerror="this.src='https://via.placeholder.com/120?text=SiVMOR'">
+            <img src="LOGO.jpg" alt="SiVMOR Logo" class="auth-logo" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=SiVMOR&background=3498db&color=fff&size=120';">
             
             <h2>SiVMOR Login Hub</h2>
             <input type="text" id="username" placeholder="Username">
@@ -115,35 +115,42 @@
         }
 
         function parseCSV(csvText) {
-            const lines = csvText.split("\n");
-            if(lines.length < 2) return {};
-            
-            const headers = lines[0].split(",").map(h => h.replace(/[\r\n]+/g, '').trim().toLowerCase());
-            const users = {};
-
-            const passIdx = headers.indexOf("password");
-            const attIdx = headers.indexOf("attendance");
-            const outIdx = headers.indexOf("outstanding");
-            const stockIdx = headers.indexOf("stock"); 
-            const valIdx = headers.indexOf("stock-value"); 
-            const storeIdx = headers.indexOf("allowed_stores");
-
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
+            try {
+                const lines = csvText.split(/\r?\n/);
+                if(lines.length < 2) return {};
                 
-                const currentline = lines[i].split(",").map(item => item.replace(/[\r\n]+/g, '').trim());
-                const username = currentline[0].toLowerCase();
-                
-                users[username] = {
-                    password: currentline[passIdx !== -1 ? passIdx : 1],
-                    attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].toLowerCase() : "no",
-                    outstanding: currentline[outIdx !== -1 ? outIdx : 3] ? currentline[outIdx !== -1 ? outIdx : 3].toLowerCase() : "no",
-                    stock: currentline[stockIdx !== -1 ? stockIdx : 4] ? currentline[stockIdx !== -1 ? stockIdx : 4].toLowerCase() : "no",
-                    stock_value: currentline[valIdx !== -1 ? valIdx : 5] ? currentline[valIdx !== -1 ? valIdx : 5].toLowerCase() : "no",
-                    allowed_stores: currentline[storeIdx !== -1 ? storeIdx : 6] ? currentline[storeIdx !== -1 ? storeIdx : 6].toLowerCase() : ""
-                };
+                const headers = lines[0].split(",").map(h => h.replace(/["\r\n]+/g, '').trim().toLowerCase());
+                const users = {};
+
+                const passIdx = headers.indexOf("password");
+                const attIdx = headers.indexOf("attendance");
+                const outIdx = headers.indexOf("outstanding");
+                const stockIdx = headers.indexOf("stock"); 
+                const valIdx = headers.indexOf("stock-value"); 
+                const storeIdx = headers.indexOf("allowed_stores");
+
+                for (let i = 1; i < lines.length; i++) {
+                    if (!lines[i].trim()) continue;
+                    
+                    const currentline = lines[i].split(",").map(item => item.replace(/["\r\n]+/g, '').trim());
+                    if (!currentline[0]) continue;
+                    
+                    const username = currentline[0].toLowerCase();
+                    
+                    users[username] = {
+                        password: currentline[passIdx !== -1 ? passIdx : 1] || "",
+                        attendance: (currentline[attIdx !== -1 ? attIdx : 2] || "no").toLowerCase(),
+                        outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
+                        stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
+                        stock_value: (currentline[valIdx !== -1 ? valIdx : 5] || "no").toLowerCase(),
+                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 6] || "").toLowerCase()
+                    };
+                }
+                return users;
+            } catch (e) {
+                console.error("Error parsing CSV: ", e);
+                return {};
             }
-            return users;
         }
 
         async function handleLogin() {
@@ -163,6 +170,8 @@
             try {
                 const liveUrl = SHEET_CSV_URL + "&cb=" + new Date().getTime();
                 const response = await fetch(liveUrl);
+                if (!response.ok) throw new Error("Network issue reading sheet remote host.");
+                
                 const csvText = await response.text();
                 const userDatabase = parseCSV(csvText);
 
@@ -192,7 +201,7 @@
             } catch (err) {
                 console.error(err);
                 msg.style.color = "#e74c3c";
-                msg.innerText = "Network error syncing permissions sheet.";
+                msg.innerText = "Network error syncing permissions sheet. Please verify your data source URL connection.";
             }
         }
 
