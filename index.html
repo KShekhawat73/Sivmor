@@ -115,7 +115,7 @@
         <button class="logout-btn" onclick="logoutUser()">Log Out</button>
 
         <div class="grid">
-            <a href="https://kshekhawat73.github.io/attendance/" target="_blank" class="card" id="app-attendance">
+            <a href="#" target="_blank" class="card" id="app-attendance">
                 <span class="badge">Management</span>
                 <h2>Manager Attendance</h2>
                 <p>Track, view, and manage daily staff attendance logs and clock-in metrics.</p>
@@ -147,7 +147,7 @@
         function showRegisterNotice() {
             const msg = document.getElementById('msg');
             const emojiBox = document.getElementById('emojiBox');
-            emojiBox.style.display = "none"; // Hide error emojis if clicking register help notice
+            emojiBox.style.display = "none"; 
             msg.style.color = "#e67e22";
             msg.innerText = "ℹ️ Registration Notice:\nPlease contact the admin directly to create your username and password.";
         }
@@ -177,7 +177,8 @@
                     
                     users[username] = {
                         password: currentline[passIdx !== -1 ? passIdx : 1] || "",
-                        attendance: (currentline[attIdx !== -1 ? attIdx : 2] || "no").toLowerCase(),
+                        // 🛠️ Yaha toLowerCase() hata diya taaki MUKESH capital hi rahe, blank bhi check ho sake
+                        attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].trim() : "",
                         outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
                         stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
                         stock_value: (currentline[valIdx !== -1 ? valIdx : 5] || "no").toLowerCase(),
@@ -197,7 +198,6 @@
             const msg = document.getElementById('msg');
             const emojiBox = document.getElementById('emojiBox');
 
-            // Hide the bounce emojis on every new click attempt
             emojiBox.style.display = "none";
 
             if (!userIn || !passIn) {
@@ -219,8 +219,11 @@
 
                 if (userDatabase[userIn] && userDatabase[userIn].password === passIn) {
                     const userData = userDatabase[userIn];
+                    const attVal = userData.attendance;
+                    const attLower = attVal.toLowerCase();
 
-                    if (userData.attendance !== 'yes' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes') {
+                    // 🛠️ Updated Deactivation Logic: Agar sari chize blank/no hain toh hi block hoga
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes') {
                         msg.style.color = "#e67e22";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -231,7 +234,27 @@
 
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    if (userData.attendance === 'yes') document.getElementById('app-attendance').style.display = 'block';
+                    // 🛠️ ATTENDANCE LOGIC UPDATE
+                    const attCard = document.getElementById('app-attendance');
+                    if (attVal !== '' && attLower !== 'no') {
+                        attCard.style.display = 'block';
+                        
+                        let baseUrl = "https://kshekhawat73.github.io/attendance/";
+                        
+                        if (attLower === 'all') {
+                            attCard.href = baseUrl + "?user=" + encodeURIComponent(userIn) + "&access=all";
+                        } else if (attLower === 'yes') {
+                            attCard.href = baseUrl + "?user=" + encodeURIComponent(userIn);
+                        } else {
+                            // Agar "MUKESH" ya specific naam likha hai
+                            attCard.href = baseUrl + "?user=" + encodeURIComponent(attVal);
+                        }
+                    } else {
+                        // Agar cell blank ya 'no' hai
+                        attCard.style.display = 'none';
+                    }
+
+                    // Baki apps ka display
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
                     if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
                     if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
@@ -239,7 +262,6 @@
                 } else {
                     msg.style.color = "#e74c3c";
                     msg.innerText = "Access Denied. Account details are incorrect.";
-                    // Trigger dynamic elements animation on access validation failure match
                     emojiBox.style.display = "flex";
                 }
             } catch (err) {
