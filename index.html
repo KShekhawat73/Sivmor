@@ -212,24 +212,22 @@
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    // 🛠️ ATTENDANCE LOGIC UPDATE (Routing based on role)
+                    // 🛠️ ATTENDANCE LOGIC UPDATE (Fix Applied Here)
                     const attCard = document.getElementById('app-attendance');
                     if (attVal !== '' && attLower !== 'no') {
                         attCard.style.display = 'block';
                         
-                        // Aapke GitHub ka base path
                         let userFormUrl = "https://kshekhawat73.github.io/attendance/"; 
-                        
-                        // ⚠️ DHYAN DEIN: Admin ke dashboard ka link yaha daalna hai ⚠️
-                        // Aap admin-monitor.html file ko is directory me host karenge
                         let adminMonitorUrl = "https://kshekhawat73.github.io/attendance/admin-monitor.html"; 
                         
                         if (attLower === 'admin') {
-                            // 1. Agar sheet me 'admin' hai -> Monitor Dashboard khulega
                             attCard.href = adminMonitorUrl; 
+                        } else if (attLower === 'all') {
+                            attCard.href = userFormUrl + "?user=" + encodeURIComponent(userIn) + "&access=all";
                         } else {
-                            // 2. Agar koi aur naam/all hai -> Selfie wala form khulega
-                            attCard.href = userFormUrl + "?user=" + encodeURIComponent(userIn) + "&access=" + encodeURIComponent(attVal);
+                            // 🚀 YEH RAHA MAIN FIX 🚀
+                            // Ab yahan par 'userIn' ki jagah 'attVal' (Yaani actual Manager ka naam jaise MANOJ KALLA) jaa raha hai.
+                            attCard.href = userFormUrl + "?user=" + encodeURIComponent(attVal);
                         }
                     } else {
                         attCard.style.display = 'none';
