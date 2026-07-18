@@ -33,33 +33,14 @@
         #msg { margin-top: 15px; font-size: 0.9rem; color: #e74c3c; font-weight: 600; line-height: 1.4; white-space: pre-line; }
 
         /* 🙃😒😢 Error and Emoji animation styles */
-        .emoji-animation-box {
-            display: none;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 15px;
-            font-size: 28px;
-        }
-        .emoji-item {
-            animation: emojiBounce 1.5s ease-in-out infinite;
-        }
-        .emoji-item:nth-child(2) {
-            animation-delay: 0.2s;
-        }
-        .emoji-item:nth-child(3) {
-            animation-delay: 0.4s;
-        }
+        .emoji-animation-box { display: none; justify-content: center; gap: 15px; margin-top: 15px; font-size: 28px; }
+        .emoji-item { animation: emojiBounce 1.5s ease-in-out infinite; }
+        .emoji-item:nth-child(2) { animation-delay: 0.2s; }
+        .emoji-item:nth-child(3) { animation-delay: 0.4s; }
 
         @keyframes emojiBounce {
-            0%, 100% {
-                transform: translateY(0) scale(1);
-                opacity: 0.7;
-            }
-            50% {
-                transform: translateY(-8px) scale(1.15);
-                opacity: 1;
-                filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1));
-            }
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.7; }
+            50% { transform: translateY(-8px) scale(1.15); opacity: 1; filter: drop-shadow(0 5px 5px rgba(0,0,0,0.1)); }
         }
 
         /* Dashboard View Styling */
@@ -177,7 +158,6 @@
                     
                     users[username] = {
                         password: currentline[passIdx !== -1 ? passIdx : 1] || "",
-                        // 🛠️ Yaha toLowerCase() hata diya taaki MUKESH capital hi rahe, blank bhi check ho sake
                         attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].trim() : "",
                         outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
                         stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
@@ -222,7 +202,6 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    // 🛠️ Updated Deactivation Logic: Agar sari chize blank/no hain toh hi block hoga
                     if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes') {
                         msg.style.color = "#e67e22";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
@@ -231,30 +210,31 @@
 
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
-
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    // 🛠️ ATTENDANCE LOGIC UPDATE
+                    // 🛠️ ATTENDANCE LOGIC UPDATE (Routing based on role)
                     const attCard = document.getElementById('app-attendance');
                     if (attVal !== '' && attLower !== 'no') {
                         attCard.style.display = 'block';
                         
-                        let baseUrl = "https://kshekhawat73.github.io/attendance/";
+                        // Aapke GitHub ka base path
+                        let userFormUrl = "https://kshekhawat73.github.io/attendance/"; 
                         
-                        if (attLower === 'all') {
-                            attCard.href = baseUrl + "?user=" + encodeURIComponent(userIn) + "&access=all";
-                        } else if (attLower === 'yes') {
-                            attCard.href = baseUrl + "?user=" + encodeURIComponent(userIn);
+                        // ⚠️ DHYAN DEIN: Admin ke dashboard ka link yaha daalna hai ⚠️
+                        // Aap admin-monitor.html file ko is directory me host karenge
+                        let adminMonitorUrl = "https://kshekhawat73.github.io/attendance/admin-monitor.html"; 
+                        
+                        if (attLower === 'admin') {
+                            // 1. Agar sheet me 'admin' hai -> Monitor Dashboard khulega
+                            attCard.href = adminMonitorUrl; 
                         } else {
-                            // Agar "MUKESH" ya specific naam likha hai
-                            attCard.href = baseUrl + "?user=" + encodeURIComponent(attVal);
+                            // 2. Agar koi aur naam/all hai -> Selfie wala form khulega
+                            attCard.href = userFormUrl + "?user=" + encodeURIComponent(userIn) + "&access=" + encodeURIComponent(attVal);
                         }
                     } else {
-                        // Agar cell blank ya 'no' hai
                         attCard.style.display = 'none';
                     }
 
-                    // Baki apps ka display
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
                     if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
                     if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
