@@ -738,6 +738,7 @@
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
+                    localStorage.setItem('username', userIn); // ✨ Saves username in storage
 
                     // Start Dashboard Multi-Color Orb Animation along with Network Dots
                     initDashboardParticles();
@@ -767,10 +768,13 @@
                     if (userData.sales === 'yes') document.getElementById('app-sales').style.display = 'block';
                     
                     // ✨ SHOW/HIDE Rose-Pink Target Tracker based on Column I ('yes' / 'no')
+                    const targetTrackerCard = document.getElementById('app-target-tracker');
                     if (userData.insta_access === 'yes') {
-                        document.getElementById('app-target-tracker').style.display = 'block';
+                        targetTrackerCard.style.display = 'block';
+                        // Card pe click karte hi User ka naam URL me sath jayega:
+                        targetTrackerCard.href = "https://kshekhawat73.github.io/target-tracker/?user=" + encodeURIComponent(userIn);
                     } else {
-                        document.getElementById('app-target-tracker').style.display = 'none';
+                        targetTrackerCard.style.display = 'none';
                     }
                     
                     // Enable 3D Tilt Effect once cards are visible
@@ -790,6 +794,7 @@
 
         function logoutUser() {
             localStorage.removeItem('allowed_stores');
+            localStorage.removeItem('username');
             location.reload();
         }
     </script>
