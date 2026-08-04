@@ -60,6 +60,7 @@
         .badge { display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
         .badge.ops { background: #fef3c7; color: #b45309; }
         .badge.finance2 { background: #dcfce7; color: #15803d; }
+        .badge.sales { background: #ede9fe; color: #6d28d9; } /* 💜 नया Sales Badge Style */
         
         .logout-btn { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; margin-bottom: 35px; font-weight: 600; transition: background 0.2s; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.15); }
         .logout-btn:hover { background: #c0392b; transform: translateY(-1px); }
@@ -119,6 +120,13 @@
                 <h2>Stock Value Store Wise</h2>
                 <p>Monitor corporate value tracking, regional cash flows, and store details from Sheet2 & Sheet3.</p>
             </a>
+
+            <!-- 📊 नया SIVMOR SALES DASHBOARD CARD -->
+            <a href="https://kshekhawat73.github.io/sales-dashboard/" target="_blank" class="card" id="app-sales">
+                <span class="badge sales">Sales Analytics</span>
+                <h2>Sivmor Sales Dashboard</h2>
+                <p>Track YoY growth, monthly performance trends, store-wise revenue, and category-wise sales in real-time.</p>
+            </a>
         </div>
     </div>
 
@@ -147,6 +155,7 @@
                 const stockIdx = headers.indexOf("stock"); 
                 const valIdx = headers.indexOf("stock-value"); 
                 const storeIdx = headers.indexOf("allowed_stores");
+                const salesIdx = headers.indexOf("sales"); // 📊 Sales Dashboard Column Index
 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -162,7 +171,8 @@
                         outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
                         stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
                         stock_value: (currentline[valIdx !== -1 ? valIdx : 5] || "no").toLowerCase(),
-                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 6] || "").toLowerCase()
+                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 6] || "").toLowerCase(),
+                        sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase() // 📊 Sales Permission Check
                     };
                 }
                 return users;
@@ -202,7 +212,8 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes') {
+                    // अगर यूजर के पास किसी भी ऐप का एक्सेस नहीं है
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes') {
                         msg.style.color = "#e67e22";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -212,7 +223,7 @@
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    // 🛠️ ATTENDANCE LOGIC UPDATE (Fix Applied Here)
+                    // 🛠️ ATTENDANCE LOGIC
                     const attCard = document.getElementById('app-attendance');
                     if (attVal !== '' && attLower !== 'no') {
                         attCard.style.display = 'block';
@@ -225,8 +236,6 @@
                         } else if (attLower === 'all') {
                             attCard.href = userFormUrl + "?user=" + encodeURIComponent(userIn) + "&access=all";
                         } else {
-                            // 🚀 YEH RAHA MAIN FIX 🚀
-                            // Ab yahan par 'userIn' ki jagah 'attVal' (Yaani actual Manager ka naam jaise MANOJ KALLA) jaa raha hai.
                             attCard.href = userFormUrl + "?user=" + encodeURIComponent(attVal);
                         }
                     } else {
@@ -236,6 +245,7 @@
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
                     if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
                     if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
+                    if (userData.sales === 'yes') document.getElementById('app-sales').style.display = 'block'; // 📊 Show Sales Dashboard Card
                     
                 } else {
                     msg.style.color = "#e74c3c";
