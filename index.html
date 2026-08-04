@@ -20,7 +20,7 @@
             position: relative;
         }
 
-        /* 🕸️ Interactive Canvas Backgrounds (Fixed for both screens) */
+        /* 🕸️ Interactive Canvas Backgrounds */
         #bg-canvas, #dashboard-canvas {
             position: fixed;
             top: 0;
@@ -30,7 +30,8 @@
             pointer-events: none;
         }
         
-        #bg-canvas { z-index: 1; }
+        /* Fixed z-index layering so particles are visible on both screens */
+        #bg-canvas { z-index: 5; }
         #dashboard-canvas { z-index: 2; display: none; }
 
         /* Auth Screen Styling */
@@ -44,7 +45,7 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            z-index: 9999;
+            z-index: 4; /* Below canvas dots (5) but above normal background */
             overflow: hidden;
         }
 
@@ -60,7 +61,7 @@
             width: 100%; 
             border: 1px solid rgba(255, 255, 255, 0.14); 
             position: relative;
-            z-index: 10;
+            z-index: 10; /* Keeps Box ABOVE Canvas Particles */
             animation: floatingBox 6s ease-in-out infinite;
         }
 
@@ -601,7 +602,7 @@
             animateDashboard();
         }
 
-        // Initialize Tech Network animation immediately
+        // Initialize Tech Network animation immediately on load
         initLoginParticles();
 
         // 🔥 3. REAL 3D MOUSE HOVER TILT ANIMATION LOGIC FOR CARDS
