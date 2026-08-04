@@ -30,7 +30,6 @@
             pointer-events: none;
         }
         
-        /* Fixed z-index layering so particles are visible on both screens */
         #bg-canvas { z-index: 5; }
         #dashboard-canvas { z-index: 2; display: none; }
 
@@ -45,7 +44,7 @@
             display: flex; 
             justify-content: center; 
             align-items: center; 
-            z-index: 4; /* Below canvas dots (5) but above normal background */
+            z-index: 4;
             overflow: hidden;
         }
 
@@ -61,7 +60,7 @@
             width: 100%; 
             border: 1px solid rgba(255, 255, 255, 0.14); 
             position: relative;
-            z-index: 10; /* Keeps Box ABOVE Canvas Particles */
+            z-index: 10;
             animation: floatingBox 6s ease-in-out infinite;
         }
 
@@ -380,7 +379,7 @@
             </a>
 
             <!-- 6. NEW: Customer Target Tracker -->
-            <a href="https://kshekhawat73.github.io/target-tracker/" target="_blank" class="card" id="app-target-tracker">
+            <a href="#" target="_blank" class="card" id="app-target-tracker">
                 <div class="card-header-flex">
                     <span class="badge">Marketing & Targets</span>
                     <div class="card-icon">🎯</div>
@@ -418,7 +417,6 @@
                 mouse.y = e.clientY;
             });
 
-            // 💥 Click Trigger works on BOTH Login screen and Dashboard screen!
             window.addEventListener('click', (e) => {
                 shockwaves.push({ x: e.clientX, y: e.clientY, radius: 5, maxRadius: 180, alpha: 1 });
 
@@ -427,7 +425,7 @@
                     const dy = p.y - e.clientY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 180) {
-                        p.blink = 1.0; // Bright flash
+                        p.blink = 1.0;
                         p.speedX += (dx / dist) * 2.5;
                         p.speedY += (dy / dist) * 2.5;
                     }
@@ -613,7 +611,6 @@
             animateDashboard();
         }
 
-        // Initialize Tech Network animation immediately on load
         initLoginParticles();
 
         // 🔥 3. REAL 3D MOUSE HOVER TILT ANIMATION LOGIC FOR CARDS
@@ -656,20 +653,26 @@
                 const headers = lines[0].split(",").map(h => h.replace(/["\r\n]+/g, '').trim().toLowerCase());
                 const users = {};
 
+                // Strictly matched Column indices matching your Google Sheet layout
                 const passIdx = headers.indexOf("password");
                 const attIdx = headers.indexOf("attendance");
                 const outIdx = headers.indexOf("outstanding");
-                const stockIdx = headers.indexOf("stock"); 
-                const valIdx = headers.indexOf("stock-value"); 
-                const storeIdx = headers.indexOf("allowed_stores");
-                const salesIdx = headers.indexOf("sales");
                 
-                // ✨ Detects Column I whether you name it "insta", "insta_follow", "target", etc.
-                let instaIdx = headers.indexOf("insta");
-                if (instaIdx === -1) instaIdx = headers.indexOf("insta_follow");
-                if (instaIdx === -1) instaIdx = headers.indexOf("target-tracker");
-                if (instaIdx === -1) instaIdx = headers.indexOf("target");
-                if (instaIdx === -1) instaIdx = 8; // Default Column I (0-indexed position 8)
+                // 🔥 Failsafe for Column E (allowed_stores -> Index 4) so Stock App NEVER breaks
+                let storeIdx = headers.findIndex(h => h.includes("allowed") || h.includes("store"));
+                if (storeIdx === -1) storeIdx = 4;
+
+                // Failsafe for Stock & Stock-value
+                let stockIdx = headers.findIndex(h => h === "stock");
+                if (stockIdx === -1) stockIdx = 5;
+                let valIdx = headers.findIndex(h => h.includes("value") || h.includes("val"));
+                if (valIdx === -1) valIdx = 6;
+                let salesIdx = headers.findIndex(h => h.includes("sale"));
+                if (salesIdx === -1) salesIdx = 7;
+                
+                // 🔥 Failsafe for Column I (insta / target / follow -> Index 8)
+                let instaIdx = headers.findIndex(h => h.includes("insta") || h.includes("target") || h.includes("follow") || h.includes("ig") || h.includes("yt") || h.includes("google") || h.includes("marketing"));
+                if (instaIdx === -1) instaIdx = 8; // Default Column I (Index 8)
 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -683,11 +686,11 @@
                         password: currentline[passIdx !== -1 ? passIdx : 1] || "",
                         attendance: currentline[attIdx !== -1 ? attIdx : 2] ? currentline[attIdx !== -1 ? attIdx : 2].trim() : "",
                         outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
-                        stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
-                        stock_value: (currentline[valIdx !== -1 ? valIdx : 5] || "no").toLowerCase(),
-                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 6] || "").toLowerCase(),
+                        stock: (currentline[stockIdx !== -1 ? stockIdx : 5] || "no").toLowerCase(),
+                        stock_value: (currentline[valIdx !== -1 ? valIdx : 6] || "no").toLowerCase(),
+                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 4] || "").toLowerCase(), // 100% correct store value
                         sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase(),
-                        insta_access: (currentline[instaIdx] || "no").toLowerCase() // ✨ Fetches 'yes' / 'no' from Column I
+                        insta_access: (currentline[instaIdx] || "no").toLowerCase() // Fetches 'yes' / 'no' / 'admin' from Column I
                     };
                 }
                 return users;
@@ -728,7 +731,7 @@
                     const attLower = attVal.toLowerCase();
 
                     // Check if all permissions are deactivated
-                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access !== 'yes') {
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no') {
                         msg.style.color = "#fbbf24";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -737,8 +740,12 @@
                     // Hide auth screen and show dashboard
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
+                    
+                    // 🔥 Save all required localStorage keys so NO APP EVER redirects to login screen
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
-                    localStorage.setItem('username', userIn); // ✨ Saves username in storage
+                    localStorage.setItem('username', userIn);
+                    localStorage.setItem('user', userIn);
+                    localStorage.setItem('isLoggedIn', 'true');
 
                     // Start Dashboard Multi-Color Orb Animation along with Network Dots
                     initDashboardParticles();
@@ -767,11 +774,16 @@
                     if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
                     if (userData.sales === 'yes') document.getElementById('app-sales').style.display = 'block';
                     
-                    // ✨ SHOW/HIDE Rose-Pink Target Tracker based on Column I ('yes' / 'no')
+                    // ✨ SHOW/HIDE Rose-Pink Target Tracker based on Column I ('yes', 'no', 'admin')
+                    // 👑 Special handling: Agar User 'Admin' hai aur Column I me 'yes' ya 'admin' likha hai, tab bhi admin.html khulega!
                     const targetTrackerCard = document.getElementById('app-target-tracker');
-                    if (userData.insta_access === 'yes') {
+                    const instaVal = userData.insta_access;
+                    
+                    if (instaVal === 'admin' || instaVal === 'all' || (userIn === 'admin' && (instaVal === 'yes' || instaVal === 'admin'))) {
                         targetTrackerCard.style.display = 'block';
-                        // Card pe click karte hi User ka naam URL me sath jayega:
+                        targetTrackerCard.href = "https://kshekhawat73.github.io/target-tracker/admin.html";
+                    } else if (instaVal === 'yes' || instaVal === 'true') {
+                        targetTrackerCard.style.display = 'block';
                         targetTrackerCard.href = "https://kshekhawat73.github.io/target-tracker/?user=" + encodeURIComponent(userIn);
                     } else {
                         targetTrackerCard.style.display = 'none';
@@ -795,6 +807,8 @@
         function logoutUser() {
             localStorage.removeItem('allowed_stores');
             localStorage.removeItem('username');
+            localStorage.removeItem('user');
+            localStorage.removeItem('isLoggedIn');
             location.reload();
         }
     </script>
