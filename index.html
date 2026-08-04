@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Management Dashboard</title>
+    <title>SiVMOR Workspace | Management Portal</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -17,17 +17,128 @@
             min-height: 100vh; 
             padding: 40px 20px; 
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* 🕸️ Interactive Canvas Background for Login Screen */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
         }
         
         /* Auth Screen Styling */
-        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f172a; display: flex; justify-content: center; align-items: center; z-index: 9999; }
-        .auth-box { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); padding: 35px 40px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); text-align: center; max-width: 420px; width: 100%; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .auth-logo { width: 110px; height: 110px; object-fit: cover; border-radius: 50%; margin-bottom: 20px; border: 3px solid #38bdf8; box-shadow: 0 0 25px rgba(56, 189, 248, 0.3); background-color: #f8fafc; }
-        .auth-box h2 { margin-bottom: 25px; color: #f8fafc; font-weight: 700; font-size: 1.7rem; }
-        .auth-box input { width: 100%; padding: 14px 16px; margin: 10px 0; border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; font-size: 0.95rem; outline: none; transition: all 0.2s; background: rgba(15, 23, 42, 0.6); color: #f8fafc; }
-        .auth-box input:focus { border-color: #38bdf8; box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15); }
-        .auth-box button { width: 100%; padding: 14px; background: linear-gradient(135deg, #0284c7, #2563eb); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 15px; transition: all 0.3s; box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); }
-        .auth-box button:hover { box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5); transform: translateY(-2px); }
+        #auth-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: radial-gradient(circle at center, #1e293b 0%, #0b1329 100%); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        /* 🔮 Floating Glassmorphism Login Box */
+        .auth-box { 
+            background: rgba(30, 41, 59, 0.75); 
+            backdrop-filter: blur(20px); 
+            padding: 40px 40px; 
+            border-radius: 24px; 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 40px rgba(56, 189, 248, 0.1); 
+            text-align: center; 
+            max-width: 430px; 
+            width: 100%; 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            position: relative;
+            z-index: 10;
+            animation: floatingBox 6s ease-in-out infinite;
+        }
+
+        @keyframes floatingBox {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .auth-logo { 
+            width: 110px; 
+            height: 110px; 
+            object-fit: cover; 
+            border-radius: 50%; 
+            margin-bottom: 18px; 
+            border: 3px solid #38bdf8; 
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.4); 
+            background-color: #f8fafc;
+            transition: transform 0.3s ease;
+        }
+        .auth-logo:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        /* ✨ Updated Name & Subtitle */
+        .auth-title { 
+            margin-bottom: 4px; 
+            color: #f8fafc; 
+            font-weight: 800; 
+            font-size: 1.85rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .auth-subtitle {
+            color: #94a3b8;
+            font-size: 0.88rem;
+            margin-bottom: 28px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .auth-box input { 
+            width: 100%; 
+            padding: 14px 16px; 
+            margin: 10px 0; 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            border-radius: 12px; 
+            font-size: 0.95rem; 
+            outline: none; 
+            transition: all 0.25s; 
+            background: rgba(15, 23, 42, 0.65); 
+            color: #f8fafc; 
+        }
+        .auth-box input:focus { 
+            border-color: #38bdf8; 
+            background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2); 
+        }
+        
+        .auth-box button { 
+            width: 100%; 
+            padding: 14px; 
+            background: linear-gradient(135deg, #0284c7, #2563eb); 
+            color: white; 
+            border: none; 
+            border-radius: 12px; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            margin-top: 18px; 
+            transition: all 0.3s; 
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4); 
+        }
+        .auth-box button:hover { 
+            box-shadow: 0 6px 25px rgba(37, 99, 235, 0.6); 
+            transform: translateY(-2px); 
+            background: linear-gradient(135deg, #0369a1, #1d4ed8);
+        }
+        
         .register-container { margin-top: 25px; font-size: 0.9rem; color: #94a3b8; }
         .register-link { color: #38bdf8; font-weight: 600; text-decoration: none; cursor: pointer; }
         #msg { margin-top: 15px; font-size: 0.9rem; color: #f87171; font-weight: 600; line-height: 1.4; white-space: pre-line; }
@@ -38,7 +149,7 @@
         @keyframes emojiBounce { 0%, 100% { transform: translateY(0); opacity: 0.7; } 50% { transform: translateY(-8px); opacity: 1; } }
 
         /* 👑 Dashboard View Styling */
-        #dashboard-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 1100px; }
+        #dashboard-content { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 1100px; z-index: 10; }
         
         .header-title {
             font-size: 2.8rem;
@@ -79,14 +190,14 @@
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
             gap: 28px; 
             width: 100%; 
-            perspective: 1000px; /* Essential for 3D depth */
+            perspective: 1000px;
         }
         
         /* 🔥 Ultra-Modern 3D Card Design */
         .card { 
             display: none; 
             position: relative;
-            background: rgba(30, 41, 59, 0.6); 
+            background: rgba(30, 41, 59, 0.65); 
             border-radius: 20px; 
             padding: 32px 26px; 
             text-align: left; 
@@ -101,29 +212,23 @@
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Accent top glowing bar inside card */
         .card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
+            top: 0; left: 0; right: 0;
             height: 4px;
             background: var(--accent-color, #38bdf8);
             opacity: 0.8;
             transition: opacity 0.3s, height 0.3s;
         }
 
-        /* Subtle glowing light orb effect on hover */
         .card::after {
             content: '';
             position: absolute;
-            width: 150px;
-            height: 150px;
+            width: 150px; height: 150px;
             background: var(--accent-color, #38bdf8);
             filter: blur(80px);
-            top: -50px;
-            right: -50px;
+            top: -50px; right: -50px;
             opacity: 0.15;
             transition: opacity 0.4s ease;
             pointer-events: none;
@@ -134,22 +239,10 @@
             box-shadow: 0 20px 40px -15px var(--accent-glow, rgba(56, 189, 248, 0.25));
         }
 
-        .card:hover::before {
-            height: 5px;
-            opacity: 1;
-        }
+        .card:hover::before { height: 5px; opacity: 1; }
+        .card:hover::after { opacity: 0.35; }
 
-        .card:hover::after {
-            opacity: 0.35;
-        }
-
-        /* Card Elements layout */
-        .card-header-flex {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
+        .card-header-flex { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 
         .badge { 
             display: inline-block; 
@@ -166,11 +259,8 @@
         
         .card-icon {
             font-size: 1.6rem;
-            width: 46px;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 46px; height: 46px;
+            display: flex; align-items: center; justify-content: center;
             border-radius: 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -184,15 +274,8 @@
             transition: color 0.3s;
         }
         
-        .card:hover h2 {
-            color: var(--accent-color, #38bdf8);
-        }
-
-        .card p { 
-            color: #94a3b8; 
-            font-size: 0.95rem; 
-            line-height: 1.6; 
-        }
+        .card:hover h2 { color: var(--accent-color, #38bdf8); }
+        .card p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
 
         /* 🎨 Custom Accent Themes for Each Card */
         #app-attendance { --accent-color: #38bdf8; --accent-glow: rgba(56, 189, 248, 0.3); } /* Blue */
@@ -205,11 +288,17 @@
 </head>
 <body>
 
+    <!-- 🌌 Interactive Canvas Particles Background -->
+    <canvas id="bg-canvas"></canvas>
+
     <div id="auth-screen">
         <div class="auth-box">
             <img src="https://lh3.googleusercontent.com/d/1r0AARMeDPeGoN-Nor8Z7uOT_2jxgMKbu" alt="SiVMOR Logo" class="auth-logo" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=SiVMOR&background=0284c7&color=fff&size=120';">
             
-            <h2>SiVMOR Login Hub</h2>
+            <!-- ✨ New Name & Subtitle -->
+            <h2 class="auth-title">SiVMOR Workspace</h2>
+            <p class="auth-subtitle">Centralized Operations & Analytics Portal</p>
+
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
             <button onclick="handleLogin()">Login</button>
@@ -229,7 +318,7 @@
     </div>
 
     <div id="dashboard-content">
-        <h1 class="header-title">Internal Operations Hub</h1>
+        <h1 class="header-title">SiVMOR Workspace</h1>
         <p class="subtitle">Select an application below to access your live portal</p>
         <button class="logout-btn" onclick="logoutUser()">⚡ Log Out</button>
 
@@ -289,19 +378,97 @@
     <script>
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjOK2FMrqyQHeIIITmiJ_vKB88pBceqYLQa4rUFzReHNF0Pybl7afELbIPHiu3jypMc4vS0UtGEWmu/pub?output=csv";
 
-        // 🔥 REAL 3D MOUSE HOVER TILT ANIMATION LOGIC
+        // ✨ 1. LIVE FLOATING PARTICLES EFFECT (Interactive Canvas)
+        function initParticles() {
+            const canvas = document.getElementById('bg-canvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            const particles = [];
+            const particleCount = 45; // Smooth lightweight count
+
+            const mouse = { x: null, y: null };
+            window.addEventListener('mousemove', (e) => {
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 2 + 1;
+                    this.speedX = (Math.random() - 0.5) * 0.7;
+                    this.speedY = (Math.random() - 0.5) * 0.7;
+                    this.color = 'rgba(56, 189, 248, ' + (Math.random() * 0.4 + 0.2) + ')';
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x < 0 || this.x > width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > height) this.speedY *= -1;
+
+                    // Mouse interactivity
+                    if (mouse.x && mouse.y) {
+                        const dx = mouse.x - this.x;
+                        const dy = mouse.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        if (distance < 120) {
+                            ctx.beginPath();
+                            ctx.strokeStyle = `rgba(56, 189, 248, ${1 - distance / 120})`;
+                            ctx.lineWidth = 0.6;
+                            ctx.moveTo(this.x, this.y);
+                            ctx.lineTo(mouse.x, mouse.y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        // Initialize particles immediately when script loads
+        initParticles();
+
+        // 🔥 2. REAL 3D MOUSE HOVER TILT ANIMATION LOGIC FOR CARDS
         function enable3DCards() {
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
                 card.addEventListener('mousemove', e => {
                     const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left; // x position within card
-                    const y = e.clientY - rect.top;  // y position within card
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
                     
                     const centerX = rect.width / 2;
                     const centerY = rect.height / 2;
                     
-                    const rotateX = ((y - centerY) / centerY) * -8; // max 8 deg tilt
+                    const rotateX = ((y - centerY) / centerY) * -8;
                     const rotateY = ((x - centerX) / centerX) * 8;
                     
                     card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-6px) scale(1.02)`;
@@ -398,6 +565,7 @@
                         return;
                     }
 
+                    // Hide auth screen and show dashboard
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
