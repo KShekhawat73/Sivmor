@@ -653,16 +653,13 @@
                 const headers = lines[0].split(",").map(h => h.replace(/["\r\n]+/g, '').trim().toLowerCase());
                 const users = {};
 
-                // Strictly matched Column indices matching your Google Sheet layout
                 const passIdx = headers.indexOf("password");
                 const attIdx = headers.indexOf("attendance");
                 const outIdx = headers.indexOf("outstanding");
                 
-                // 🔥 Failsafe for Column E (allowed_stores -> Index 4) so Stock App NEVER breaks
                 let storeIdx = headers.findIndex(h => h.includes("allowed") || h.includes("store"));
                 if (storeIdx === -1) storeIdx = 4;
 
-                // Failsafe for Stock & Stock-value
                 let stockIdx = headers.findIndex(h => h === "stock");
                 if (stockIdx === -1) stockIdx = 5;
                 let valIdx = headers.findIndex(h => h.includes("value") || h.includes("val"));
@@ -670,9 +667,8 @@
                 let salesIdx = headers.findIndex(h => h.includes("sale"));
                 if (salesIdx === -1) salesIdx = 7;
                 
-                // 🔥 Failsafe for Column I (insta / target / follow -> Index 8)
                 let instaIdx = headers.findIndex(h => h.includes("insta") || h.includes("target") || h.includes("follow") || h.includes("ig") || h.includes("yt") || h.includes("google") || h.includes("marketing"));
-                if (instaIdx === -1) instaIdx = 8; // Default Column I (Index 8)
+                if (instaIdx === -1) instaIdx = 8; 
 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -688,9 +684,9 @@
                         outstanding: (currentline[outIdx !== -1 ? outIdx : 3] || "no").toLowerCase(),
                         stock: (currentline[stockIdx !== -1 ? stockIdx : 5] || "no").toLowerCase(),
                         stock_value: (currentline[valIdx !== -1 ? valIdx : 6] || "no").toLowerCase(),
-                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 4] || "").toLowerCase(), // 100% correct store value
+                        allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 4] || "").toLowerCase(), 
                         sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase(),
-                        insta_access: (currentline[instaIdx] || "no").toLowerCase() // Fetches 'yes' / 'no' / 'admin' from Column I
+                        insta_access: (currentline[instaIdx] || "no").toLowerCase() 
                     };
                 }
                 return users;
@@ -730,31 +726,27 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    // Check if all permissions are deactivated
                     if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no') {
                         msg.style.color = "#fbbf24";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
                     }
 
-                    // Hide auth screen and show dashboard
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     
-                    // 🔥 Save all required localStorage keys so NO APP EVER redirects to login screen
+                    // Save local storage
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
                     localStorage.setItem('username', userIn);
                     localStorage.setItem('user', userIn);
                     localStorage.setItem('isLoggedIn', 'true');
 
-                    // Start Dashboard Multi-Color Orb Animation along with Network Dots
                     initDashboardParticles();
 
                     // 🛠️ ATTENDANCE LOGIC
                     const attCard = document.getElementById('app-attendance');
                     if (attVal !== '' && attLower !== 'no') {
                         attCard.style.display = 'block';
-                        
                         let userFormUrl = "https://kshekhawat73.github.io/attendance/"; 
                         let adminMonitorUrl = "https://kshekhawat73.github.io/attendance/admin-monitor.html"; 
                         
@@ -770,12 +762,29 @@
                     }
 
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
-                    if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
-                    if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
-                    if (userData.sales === 'yes') document.getElementById('app-sales').style.display = 'block';
                     
-                    // ✨ SHOW/HIDE Rose-Pink Target Tracker based on Column I ('yes', 'no', 'admin')
-                    // 👑 Special handling: Agar User 'Admin' hai aur Column I me 'yes' ya 'admin' likha hai, tab bhi admin.html khulega!
+                    // -----------------------------------------------------------------------------------------
+                    // 🚀 PERMANENT LOGIN FIX: Pass URL parameters directly so tools NEVER ask for login again
+                    // -----------------------------------------------------------------------------------------
+                    if (userData.stock === 'yes') {
+                        const stockCard = document.getElementById('app-stock');
+                        stockCard.style.display = 'block';
+                        stockCard.href = `https://kshekhawat73.github.io/stock/?user=${encodeURIComponent(userIn)}&stores=${encodeURIComponent(userData.allowed_stores || '')}`;
+                    }
+
+                    if (userData.stock_value === 'yes') {
+                        const stockValCard = document.getElementById('app-stock-value');
+                        stockValCard.style.display = 'block';
+                        stockValCard.href = `https://kshekhawat73.github.io/stock-value/?sheet=Sheet2&user=${encodeURIComponent(userIn)}&stores=${encodeURIComponent(userData.allowed_stores || '')}`;
+                    }
+
+                    if (userData.sales === 'yes') {
+                        const salesCard = document.getElementById('app-sales');
+                        salesCard.style.display = 'block';
+                        salesCard.href = `https://kshekhawat73.github.io/sales-dashboard/?user=${encodeURIComponent(userIn)}&stores=${encodeURIComponent(userData.allowed_stores || '')}`;
+                    }
+                    // -----------------------------------------------------------------------------------------
+                    
                     const targetTrackerCard = document.getElementById('app-target-tracker');
                     const instaVal = userData.insta_access;
                     
@@ -789,7 +798,6 @@
                         targetTrackerCard.style.display = 'none';
                     }
                     
-                    // Enable 3D Tilt Effect once cards are visible
                     enable3DCards();
 
                 } else {
