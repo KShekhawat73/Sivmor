@@ -20,7 +20,7 @@
             position: relative;
         }
 
-        /* 🕸️ Interactive Canvas Backgrounds */
+        /* 🕸️ Interactive Canvas Backgrounds (Fixed for both screens) */
         #bg-canvas, #dashboard-canvas {
             position: fixed;
             top: 0;
@@ -31,7 +31,7 @@
         }
         
         #bg-canvas { z-index: 1; }
-        #dashboard-canvas { z-index: 0; display: none; }
+        #dashboard-canvas { z-index: 2; display: none; }
 
         /* Auth Screen Styling */
         #auth-screen { 
@@ -290,10 +290,10 @@
 </head>
 <body>
 
-    <!-- 🌌 Interactive Canvas 1 (Login Screen with Click Shockwave) -->
+    <!-- 🌌 Interactive Canvas 1: Tech Network Dots + Click Shockwave (Runs on BOTH screens) -->
     <canvas id="bg-canvas"></canvas>
     
-    <!-- 🌌 Interactive Canvas 2 (Dashboard Screen with Floating Multi-Color Tech Orbs) -->
+    <!-- 🌌 Interactive Canvas 2: Multi-Color Cyber Orbs (Starts after login) -->
     <canvas id="dashboard-canvas"></canvas>
 
     <div id="auth-screen">
@@ -383,9 +383,8 @@
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjOK2FMrqyQHeIIITmiJ_vKB88pBceqYLQa4rUFzReHNF0Pybl7afELbIPHiu3jypMc4vS0UtGEWmu/pub?output=csv";
 
         // =========================================================================
-        // ✨ 1. LOGIN SCREEN ANIMATION: Tech Network + Click Shockwave / Blink
+        // ✨ 1. TECH NETWORK DOTS + CLICK SHOCKWAVE / BLINK (Runs across BOTH screens)
         // =========================================================================
-        let authAnimationId = null;
         function initLoginParticles() {
             const canvas = document.getElementById('bg-canvas');
             const ctx = canvas.getContext('2d');
@@ -407,21 +406,17 @@
                 mouse.y = e.clientY;
             });
 
-            // 💥 Click Trigger for Shockwave & Particle Blink Effect
+            // 💥 Click Trigger works on BOTH Login screen and Dashboard screen!
             window.addEventListener('click', (e) => {
-                if (document.getElementById('auth-screen').style.display === 'none') return;
-                
-                // Add growing glowing shockwave circle
                 shockwaves.push({ x: e.clientX, y: e.clientY, radius: 5, maxRadius: 180, alpha: 1 });
 
-                // Make nearby particles blink bright & jump away
                 particles.forEach(p => {
                     const dx = p.x - e.clientX;
                     const dy = p.y - e.clientY;
                     const dist = Math.sqrt(dx * dx + dy * dy);
                     if (dist < 180) {
-                        p.blink = 1.0; // Max bright flash
-                        p.speedX += (dx / dist) * 2.5; // Push away
+                        p.blink = 1.0; // Bright flash
+                        p.speedX += (dx / dist) * 2.5;
                         p.speedY += (dy / dist) * 2.5;
                     }
                 });
@@ -436,17 +431,15 @@
                     this.baseSpeedY = (Math.random() - 0.5) * 0.8;
                     this.speedX = this.baseSpeedX;
                     this.speedY = this.baseSpeedY;
-                    this.blink = 0; // Flash intensity
+                    this.blink = 0;
                 }
                 update() {
                     this.x += this.speedX;
                     this.y += this.speedY;
 
-                    // Gradually normalize speed after shockwave boost
                     this.speedX += (this.baseSpeedX - this.speedX) * 0.05;
                     this.speedY += (this.baseSpeedY - this.speedY) * 0.05;
 
-                    // Fade blink
                     if (this.blink > 0) this.blink -= 0.03;
 
                     if (this.x < 0 || this.x > width) this.speedX *= -1;
@@ -464,7 +457,7 @@
                         ctx.shadowBlur = 0;
                     }
                     ctx.fill();
-                    ctx.shadowBlur = 0; // Reset
+                    ctx.shadowBlur = 0;
                 }
             }
 
@@ -475,7 +468,6 @@
             function animate() {
                 ctx.clearRect(0, 0, width, height);
                 
-                // Draw Click Shockwaves
                 for (let i = shockwaves.length - 1; i >= 0; i--) {
                     const sw = shockwaves[i];
                     ctx.beginPath();
@@ -488,7 +480,6 @@
                     if (sw.alpha <= 0) shockwaves.splice(i, 1);
                 }
 
-                // Draw Particles & Connecting Network
                 for (let i = 0; i < particles.length; i++) {
                     particles[i].update();
                     particles[i].draw();
@@ -521,7 +512,7 @@
                         }
                     }
                 }
-                authAnimationId = requestAnimationFrame(animate);
+                requestAnimationFrame(animate);
             }
             animate();
         }
@@ -543,9 +534,8 @@
 
             const orbs = [];
             const pulses = [];
-            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7']; // Matches card themes
+            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7'];
 
-            // Click Trigger for Subtle Radar Pulse in Dashboard
             window.addEventListener('click', (e) => {
                 if (document.getElementById('dashboard-content').style.display === 'none') return;
                 pulses.push({ x: e.clientX, y: e.clientY, radius: 10, maxRadius: 220, alpha: 0.6 });
@@ -556,7 +546,7 @@
                     this.x = Math.random() * width;
                     this.y = Math.random() * height;
                     this.size = Math.random() * 4 + 2;
-                    this.speedY = -(Math.random() * 0.6 + 0.2); // Slowly floating UP
+                    this.speedY = -(Math.random() * 0.6 + 0.2);
                     this.speedX = (Math.random() - 0.5) * 0.4;
                     this.color = colors[Math.floor(Math.random() * colors.length)];
                     this.alpha = Math.random() * 0.6 + 0.2;
@@ -589,7 +579,6 @@
             function animateDashboard() {
                 ctx.clearRect(0, 0, width, height);
                 
-                // Draw Radar Pulses
                 for (let i = pulses.length - 1; i >= 0; i--) {
                     const p = pulses[i];
                     ctx.beginPath();
@@ -602,7 +591,6 @@
                     if (p.alpha <= 0) pulses.splice(i, 1);
                 }
 
-                // Draw Ambient Glowing Orbs
                 orbs.forEach(orb => {
                     orb.update();
                     orb.draw();
@@ -613,7 +601,7 @@
             animateDashboard();
         }
 
-        // Initialize Login animation immediately
+        // Initialize Tech Network animation immediately
         initLoginParticles();
 
         // 🔥 3. REAL 3D MOUSE HOVER TILT ANIMATION LOGIC FOR CARDS
@@ -725,15 +713,12 @@
                         return;
                     }
 
-                    // 💥 Hide auth screen, STOP auth canvas, START Dashboard canvas
+                    // Hide auth screen and show dashboard (Tech Network keeps running in background!)
                     document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('bg-canvas').style.display = 'none';
-                    if (authAnimationId) cancelAnimationFrame(authAnimationId);
-                    
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
 
-                    // Start Dashboard Multi-Color Orb Animation
+                    // Start Dashboard Multi-Color Orb Animation along with Network Dots
                     initDashboardParticles();
 
                     // 🛠️ ATTENDANCE LOGIC
