@@ -286,6 +286,7 @@
         #app-stock { --accent-color: #fbbf24; --accent-glow: rgba(251, 191, 36, 0.3); } /* Amber */
         #app-stock-value { --accent-color: #22d3ee; --accent-glow: rgba(34, 211, 238, 0.3); } /* Cyan */
         #app-sales { --accent-color: #a855f7; --accent-glow: rgba(168, 85, 247, 0.35); } /* Purple */
+        #app-target-tracker { --accent-color: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.35); } /* Rose Pink */
 
     </style>
 </head>
@@ -376,6 +377,16 @@
                 </div>
                 <h2>Sivmor Sales Dashboard</h2>
                 <p>Track YoY growth, monthly performance trends, store-wise revenue, and category-wise sales in real-time.</p>
+            </a>
+
+            <!-- 6. NEW: Customer Target Tracker -->
+            <a href="https://kshekhawat73.github.io/target-tracker/" target="_blank" class="card" id="app-target-tracker">
+                <div class="card-header-flex">
+                    <span class="badge">Marketing & Targets</span>
+                    <div class="card-icon">🎯</div>
+                </div>
+                <h2>Customer Target Tracker</h2>
+                <p>Submit live customer proof images for Instagram follows, YouTube subscribers, and Google reviews.</p>
             </a>
         </div>
     </div>
@@ -535,7 +546,7 @@
 
             const orbs = [];
             const pulses = [];
-            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7'];
+            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7', '#f43f5e'];
 
             window.addEventListener('click', (e) => {
                 if (document.getElementById('dashboard-content').style.display === 'none') return;
@@ -652,6 +663,13 @@
                 const valIdx = headers.indexOf("stock-value"); 
                 const storeIdx = headers.indexOf("allowed_stores");
                 const salesIdx = headers.indexOf("sales");
+                
+                // ✨ Detects Column I whether you name it "insta", "insta_follow", "target", etc.
+                let instaIdx = headers.indexOf("insta");
+                if (instaIdx === -1) instaIdx = headers.indexOf("insta_follow");
+                if (instaIdx === -1) instaIdx = headers.indexOf("target-tracker");
+                if (instaIdx === -1) instaIdx = headers.indexOf("target");
+                if (instaIdx === -1) instaIdx = 8; // Default Column I (0-indexed position 8)
 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -668,7 +686,8 @@
                         stock: (currentline[stockIdx !== -1 ? stockIdx : 4] || "no").toLowerCase(),
                         stock_value: (currentline[valIdx !== -1 ? valIdx : 5] || "no").toLowerCase(),
                         allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 6] || "").toLowerCase(),
-                        sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase()
+                        sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase(),
+                        insta_access: (currentline[instaIdx] || "no").toLowerCase() // ✨ Fetches 'yes' / 'no' from Column I
                     };
                 }
                 return users;
@@ -708,13 +727,14 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes') {
+                    // Check if all permissions are deactivated
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access !== 'yes') {
                         msg.style.color = "#fbbf24";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
                     }
 
-                    // Hide auth screen and show dashboard (Tech Network keeps running in background!)
+                    // Hide auth screen and show dashboard
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
@@ -745,6 +765,13 @@
                     if (userData.stock === 'yes') document.getElementById('app-stock').style.display = 'block';
                     if (userData.stock_value === 'yes') document.getElementById('app-stock-value').style.display = 'block';
                     if (userData.sales === 'yes') document.getElementById('app-sales').style.display = 'block';
+                    
+                    // ✨ SHOW/HIDE Rose-Pink Target Tracker based on Column I ('yes' / 'no')
+                    if (userData.insta_access === 'yes') {
+                        document.getElementById('app-target-tracker').style.display = 'block';
+                    } else {
+                        document.getElementById('app-target-tracker').style.display = 'none';
+                    }
                     
                     // Enable 3D Tilt Effect once cards are visible
                     enable3DCards();
