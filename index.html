@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiVMOR Workspace | Management Portal</title>
+    
+    <!-- 🔥 PWA & APK Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
@@ -280,21 +284,21 @@
         .card p { color: #94a3b8; font-size: 0.95rem; line-height: 1.6; }
 
         /* 🎨 Custom Accent Themes for Each Card */
-        #app-attendance { --accent-color: #38bdf8; --accent-glow: rgba(56, 189, 248, 0.3); } /* Blue */
-        #app-outstanding { --accent-color: #34d399; --accent-glow: rgba(52, 211, 153, 0.3); } /* Emerald */
-        #app-stock { --accent-color: #fbbf24; --accent-glow: rgba(251, 191, 36, 0.3); } /* Amber */
-        #app-stock-value { --accent-color: #22d3ee; --accent-glow: rgba(34, 211, 238, 0.3); } /* Cyan */
-        #app-sales { --accent-color: #a855f7; --accent-glow: rgba(168, 85, 247, 0.35); } /* Purple */
-        #app-target-tracker { --accent-color: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.35); } /* Rose Pink */
+        #app-attendance { --accent-color: #38bdf8; --accent-glow: rgba(56, 189, 248, 0.3); }
+        #app-outstanding { --accent-color: #34d399; --accent-glow: rgba(52, 211, 153, 0.3); }
+        #app-stock { --accent-color: #fbbf24; --accent-glow: rgba(251, 191, 36, 0.3); }
+        #app-stock-value { --accent-color: #22d3ee; --accent-glow: rgba(34, 211, 238, 0.3); }
+        #app-sales { --accent-color: #a855f7; --accent-glow: rgba(168, 85, 247, 0.35); }
+        #app-target-tracker { --accent-color: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.35); }
 
     </style>
 </head>
 <body>
 
-    <!-- 🌌 Interactive Canvas 1: Tech Network Dots + Click Shockwave (Runs on BOTH screens) -->
+    <!-- 🌌 Interactive Canvas 1 -->
     <canvas id="bg-canvas"></canvas>
     
-    <!-- 🌌 Interactive Canvas 2: Multi-Color Cyber Orbs (Starts after login) -->
+    <!-- 🌌 Interactive Canvas 2 -->
     <canvas id="dashboard-canvas"></canvas>
 
     <div id="auth-screen">
@@ -378,7 +382,7 @@
                 <p>Track YoY growth, monthly performance trends, store-wise revenue, and category-wise sales in real-time.</p>
             </a>
 
-            <!-- 6. NEW: Customer Target Tracker -->
+            <!-- 6. Customer Target Tracker -->
             <a href="#" target="_blank" class="card" id="app-target-tracker">
                 <div class="card-header-flex">
                     <span class="badge">Marketing & Targets</span>
@@ -393,9 +397,6 @@
     <script>
         const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTjOK2FMrqyQHeIIITmiJ_vKB88pBceqYLQa4rUFzReHNF0Pybl7afELbIPHiu3jypMc4vS0UtGEWmu/pub?output=csv";
 
-        // =========================================================================
-        // ✨ 1. TECH NETWORK DOTS + CLICK SHOCKWAVE / BLINK (Runs across BOTH screens)
-        // =========================================================================
         function initLoginParticles() {
             const canvas = document.getElementById('bg-canvas');
             const ctx = canvas.getContext('2d');
@@ -527,9 +528,6 @@
             animate();
         }
 
-        // =========================================================================
-        // 🔮 2. DASHBOARD SCREEN ANIMATION: Floating Multi-Color Tech Orbs & Pulse
-        // =========================================================================
         function initDashboardParticles() {
             const canvas = document.getElementById('dashboard-canvas');
             const ctx = canvas.getContext('2d');
@@ -613,7 +611,6 @@
 
         initLoginParticles();
 
-        // 🔥 3. REAL 3D MOUSE HOVER TILT ANIMATION LOGIC FOR CARDS
         function enable3DCards() {
             const cards = document.querySelectorAll('.card');
             cards.forEach(card => {
@@ -735,7 +732,6 @@
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     
-                    // Save local storage
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
                     localStorage.setItem('username', userIn);
                     localStorage.setItem('user', userIn);
@@ -743,12 +739,11 @@
 
                     initDashboardParticles();
 
-                    // 🛠️ ATTENDANCE LOGIC
                     const attCard = document.getElementById('app-attendance');
                     if (attVal !== '' && attLower !== 'no') {
                         attCard.style.display = 'block';
-                        let userFormUrl = "https://kshekhawat73.github.io/attendance/"; 
-                        let adminMonitorUrl = "https://kshekhawat73.github.io/attendance/admin-monitor.html"; 
+                        let userFormUrl = "attendance.html"; 
+                        let adminMonitorUrl = "admin-monitor.html"; 
                         
                         if (attLower === 'admin') {
                             attCard.href = adminMonitorUrl; 
@@ -763,9 +758,6 @@
 
                     if (userData.outstanding === 'yes') document.getElementById('app-outstanding').style.display = 'block';
                     
-                    // -----------------------------------------------------------------------------------------
-                    // 🚀 PERMANENT LOGIN FIX: Pass URL parameters directly so tools NEVER ask for login again
-                    // -----------------------------------------------------------------------------------------
                     if (userData.stock === 'yes') {
                         const stockCard = document.getElementById('app-stock');
                         stockCard.style.display = 'block';
@@ -783,7 +775,6 @@
                         salesCard.style.display = 'block';
                         salesCard.href = `https://kshekhawat73.github.io/sales-dashboard/?user=${encodeURIComponent(userIn)}&stores=${encodeURIComponent(userData.allowed_stores || '')}`;
                     }
-                    // -----------------------------------------------------------------------------------------
                     
                     const targetTrackerCard = document.getElementById('app-target-tracker');
                     const instaVal = userData.insta_access;
