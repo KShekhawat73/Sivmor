@@ -3,39 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Attendance Monitor</title>
-    
-    <!-- 🔥 PWA & APK Manifest Link -->
+    <title>Admin Monitor Dashboard</title>
     <link rel="manifest" href="manifest.json">
 
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: radial-gradient(circle at 50% 10%, #1e293b 0%, #0f172a 100%); color: #f8fafc; padding: 20px; min-height: 100vh; }
-        .container { max-width: 1000px; margin: 0 auto; background: rgba(30, 41, 59, 0.75); padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
-        h2 { text-align: center; color: #38bdf8; margin-bottom: 20px; font-size: 1.8rem; }
-        .back-btn { display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-bottom: 20px; }
-        .back-btn:hover { background: #5a6268; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; }
-        th { background: #0284c7; color: white; font-weight: 600; }
-        tr:hover { background: rgba(56, 189, 248, 0.1); }
-        .loading { text-align: center; padding: 30px; font-size: 1.1rem; color: #94a3b8; }
+        body { background: #f8fafc; color: #1e293b; padding: 20px; min-height: 100vh; }
+        
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        
+        .dashboard-title { background: linear-gradient(135deg, #78350f, #b45309); color: white; padding: 12px 24px; border-radius: 10px; font-size: 1.5rem; font-weight: bold; box-shadow: 0 4px 12px rgba(180, 83, 9, 0.3); }
+        
+        .refresh-btn { background: #10b981; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .refresh-btn:hover { background: #059669; }
+
+        .status-boxes { display: flex; gap: 20px; margin-bottom: 25px; flex-wrap: wrap; }
+        .box { flex: 1; min-width: 280px; padding: 18px 22px; border-radius: 12px; font-size: 0.95rem; }
+        .box-present { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+        .box-pending { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+        .box b { display: block; margin-top: 6px; font-size: 0.88rem; color: #374151; font-weight: normal; }
+
+        .filter-bar { display: flex; gap: 15px; margin-bottom: 25px; align-items: center; flex-wrap: wrap; }
+        .filter-bar input { padding: 10px 14px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.95rem; outline: none; }
+        #searchBox { flex: 1; min-width: 250px; }
+
+        .back-link { display: inline-block; margin-bottom: 20px; color: #2563eb; text-decoration: none; font-weight: 600; }
+        .back-link:hover { text-decoration: underline; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; }
+        th { background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
+        tr:hover { background: #f8fafc; }
+
+        .selfie-img { width: 42px; height: 42px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; background: #000; }
+        .map-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+        .map-btn:hover { background: #dbeafe; }
+
+        .loading { text-align: center; padding: 40px; font-size: 1.1rem; color: #64748b; }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-btn">🏠 Back to Dashboard</a>
-        <h2>👑 Admin Attendance Monitor</h2>
-        <div id="loading" class="loading">Loading attendance logs... ⏳</div>
+        <a href="index.html" class="back-link">← Back to Dashboard</a>
+        
+        <div class="top-bar">
+            <div class="dashboard-title">Admin Monitor Dashboard</div>
+            <button class="refresh-btn" onclick="fetchAdminData()">🔄 Refresh Live Data</button>
+        </div>
+
+        <div class="status-boxes">
+            <div class="box box-present" id="presentBox">✅ Loading Present Status...</div>
+            <div class="box box-pending" id="pendingBox">⚠️ Loading Pending Check-ins...</div>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" id="searchBox" placeholder="🔍 Search Manager (Shows Monthly Record)..." onkeyup="filterTable()">
+            <input type="date" id="dateFilter" onchange="filterTable()">
+        </div>
+
+        <div id="loading" class="loading">Loading attendance records... ⏳</div>
+        
         <div style="overflow-x: auto;">
             <table id="attendanceTable" style="display: none;">
                 <thead>
                     <tr>
-                        <th>Date / Time</th>
-                        <th>Manager Name</th>
+                        <th>Date & Time</th>
+                        <th>Manager</th>
                         <th>Store Name</th>
-                        <th>Remarks</th>
+                        <th>Selfie</th>
                         <th>GPS Location</th>
+                        <th>Remarks</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody"></tbody>
@@ -45,37 +84,101 @@
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_WoI9VdUBm5VGinxmnfu7hTHR5gHp3jP24P0vVH4VOUFrzxW8xqoSQQ7OzSxSvZhJ/exec";
+        let allLogs = [];
 
-        async function fetchAttendanceLogs() {
+        // Set today's date in date filter by default
+        document.getElementById('dateFilter').valueAsDate = new Date();
+
+        async function fetchAdminData() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('attendanceTable').style.display = 'none';
+
             try {
-                const response = await fetch(WEB_APP_URL + "?action=getLogs&t=" + new Date().getTime());
+                const response = await fetch(WEB_APP_URL + "?action=getAdminOverview&t=" + new Date().getTime());
                 const data = await response.json();
                 
-                const tableBody = document.getElementById('tableBody');
-                tableBody.innerHTML = '';
+                allLogs = data.logs || [];
+                
+                // Update Present & Pending summary boxes
+                const selectedDateStr = document.getElementById('dateFilter').value; // YYYY-MM-DD
+                updateSummaryBoxes(data.allManagers || [], allLogs, selectedDateStr);
 
-                if(data && data.length > 0) {
-                    data.reverse().forEach(row => {
-                        let tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${row.timestamp || ''}</td>
-                            <td><b>${row.manager || ''}</b></td>
-                            <td>${row.store || ''}</td>
-                            <td>${row.remarks || '-'}</td>
-                            <td><a href="https://maps.google.com/?q=${row.lat},${row.lng}" target="_blank" style="color: #38bdf8;">View Map</a></td>
-                        `;
-                        tableBody.appendChild(tr);
-                    });
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('attendanceTable').style.display = 'table';
-                } else {
-                    document.getElementById('loading').innerText = "No attendance logs found.";
-                }
+                renderTable(allLogs);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('attendanceTable').style.display = 'table';
             } catch (err) {
-                document.getElementById('loading').innerText = "Error loading logs from server.";
+                document.getElementById('loading').innerText = "Error syncing data from server.";
             }
         }
-        fetchAttendanceLogs();
+
+        function updateSummaryBoxes(allManagers, logs, dateStr) {
+            // Format selected date to match log date format if needed, or filter by date
+            // Assuming logs timestamp contains date string matching
+            const presentSet = new Set();
+            logs.forEach(l => {
+                if(l.timestamp && l.timestamp.includes(formatDateForMatch(dateStr))) {
+                    if(l.manager) presentSet.add(l.manager.toUpperCase().trim());
+                }
+            });
+
+            let presentList = Array.from(presentSet);
+            let pendingList = allManagers.filter(m => !presentList.includes(m.toUpperCase().trim()));
+
+            document.getElementById('presentBox').innerHTML = `✅ Present (${presentList.length})<b>Managers: ${presentList.length > 0 ? presentList.join(', ') : 'None'}</b>`;
+            document.getElementById('pendingBox').innerHTML = `⚠️ Pending Check-ins (${pendingList.length})<b>Managers: ${pendingList.length > 0 ? pendingList.join(', ') : 'None'}</b>`;
+        }
+
+        function formatDateForMatch(yyyy_mm_dd) {
+            if(!yyyy_mm_dd) return '';
+            const parts = yyyy_mm_dd.split('-');
+            if(parts.length !== 3) return '';
+            // Match format like D/M/YYYY or DD/MM/YYYY depending on sheets
+            return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+        }
+
+        function renderTable(logs) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if(logs.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: #64748b;">No records found.</td></tr>`;
+                return;
+            }
+
+            logs.reverse().forEach(row => {
+                let selfieHtml = row.photo ? `<img src="${row.photo}" class="selfie-img">` : `<div style="width:42px;height:42px;background:#333;border-radius:6px;"></div>`;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.timestamp || ''}</td>
+                    <td><b>${row.manager || ''}</b></td>
+                    <td>${row.store || ''}</td>
+                    <td>${selfieHtml}</td>
+                    <td><a href="https://maps.google.com/?q=${row.lat},${row.lng}" target="_blank" class="map-btn">📍 Map</a></td>
+                    <td>${row.remarks || '-'}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function filterTable() {
+            let searchVal = document.getElementById('searchBox').value.toLowerCase();
+            let dateVal = document.getElementById('dateFilter').value; // YYYY-MM-DD
+            
+            let filtered = allLogs.filter(row => {
+                let matchName = (row.manager || '').toLowerCase().includes(searchVal) || (row.store || '').toLowerCase().includes(searchVal);
+                
+                let matchDate = true;
+                if(dateVal && searchVal === '') {
+                    let formattedMatch = formatDateForMatch(dateVal);
+                    matchDate = (row.timestamp || '').includes(formattedMatch);
+                }
+                return matchName && matchDate;
+            });
+
+            renderTable(filtered);
+        }
+
+        fetchAdminData();
     </script>
 </body>
 </html>
