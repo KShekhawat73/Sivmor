@@ -8,8 +8,15 @@
   "icons": [
     {
       "src": "https://lh3.googleusercontent.com/d/1r0AARMeDPeGoN-Nor8Z7uOT_2jxgMKbu",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://lh3.googleusercontent.com/d/1r0AARMeDPeGoN-Nor8Z7uOT_2jxgMKbu",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
