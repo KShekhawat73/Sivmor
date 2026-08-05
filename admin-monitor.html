@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Attendance Monitor</title>
+    
+    <!-- 🔥 PWA & APK Manifest Link -->
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: radial-gradient(circle at 50% 10%, #1e293b 0%, #0f172a 100%); color: #f8fafc; padding: 20px; min-height: 100vh; }
+        .container { max-width: 1000px; margin: 0 auto; background: rgba(30, 41, 59, 0.75); padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        h2 { text-align: center; color: #38bdf8; margin-bottom: 20px; font-size: 1.8rem; }
+        .back-btn { display: inline-block; padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; margin-bottom: 20px; }
+        .back-btn:hover { background: #5a6268; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: rgba(15, 23, 42, 0.8); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.95rem; }
+        th { background: #0284c7; color: white; font-weight: 600; }
+        tr:hover { background: rgba(56, 189, 248, 0.1); }
+        .loading { text-align: center; padding: 30px; font-size: 1.1rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">🏠 Back to Dashboard</a>
+        <h2>👑 Admin Attendance Monitor</h2>
+        <div id="loading" class="loading">Loading attendance logs... ⏳</div>
+        <div style="overflow-x: auto;">
+            <table id="attendanceTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Date / Time</th>
+                        <th>Manager Name</th>
+                        <th>Store Name</th>
+                        <th>Remarks</th>
+                        <th>GPS Location</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_WoI9VdUBm5VGinxmnfu7hTHR5gHp3jP24P0vVH4VOUFrzxW8xqoSQQ7OzSxSvZhJ/exec";
+
+        async function fetchAttendanceLogs() {
+            try {
+                const response = await fetch(WEB_APP_URL + "?action=getLogs&t=" + new Date().getTime());
+                const data = await response.json();
+                
+                const tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+
+                if(data && data.length > 0) {
+                    data.reverse().forEach(row => {
+                        let tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${row.timestamp || ''}</td>
+                            <td><b>${row.manager || ''}</b></td>
+                            <td>${row.store || ''}</td>
+                            <td>${row.remarks || '-'}</td>
+                            <td><a href="https://maps.google.com/?q=${row.lat},${row.lng}" target="_blank" style="color: #38bdf8;">View Map</a></td>
+                        `;
+                        tableBody.appendChild(tr);
+                    });
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('attendanceTable').style.display = 'table';
+                } else {
+                    document.getElementById('loading').innerText = "No attendance logs found.";
+                }
+            } catch (err) {
+                document.getElementById('loading').innerText = "Error loading logs from server.";
+            }
+        }
+        fetchAttendanceLogs();
+    </script>
+</body>
+</html>
