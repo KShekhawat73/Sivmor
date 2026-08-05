@@ -37,7 +37,7 @@
         th { background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
         tr:hover { background: #f8fafc; }
 
-        .selfie-img { width: 42px; height: 42px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; background: #000; }
+        .selfie-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; background: #000; cursor: pointer; }
         .map-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
         .map-btn:hover { background: #dbeafe; }
 
@@ -86,7 +86,6 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_WoI9VdUBm5VGinxmnfu7hTHR5gHp3jP24P0vVH4VOUFrzxW8xqoSQQ7OzSxSvZhJ/exec";
         let allLogs = [];
 
-        // Set today's date in date filter by default
         document.getElementById('dateFilter').valueAsDate = new Date();
 
         async function fetchAdminData() {
@@ -98,9 +97,7 @@
                 const data = await response.json();
                 
                 allLogs = data.logs || [];
-                
-                // Update Present & Pending summary boxes
-                const selectedDateStr = document.getElementById('dateFilter').value; // YYYY-MM-DD
+                const selectedDateStr = document.getElementById('dateFilter').value;
                 updateSummaryBoxes(data.allManagers || [], allLogs, selectedDateStr);
 
                 renderTable(allLogs);
@@ -112,12 +109,12 @@
         }
 
         function updateSummaryBoxes(allManagers, logs, dateStr) {
-            // Format selected date to match log date format if needed, or filter by date
-            // Assuming logs timestamp contains date string matching
             const presentSet = new Set();
+            const targetDateFormatted = formatDateForMatch(dateStr); // dd/MM/yyyy
+
             logs.forEach(l => {
-                if(l.timestamp && l.timestamp.includes(formatDateForMatch(dateStr))) {
-                    if(l.manager) presentSet.add(l.manager.toUpperCase().trim());
+                if (l.timestamp && l.timestamp.includes(targetDateFormatted)) {
+                    if (l.manager) presentSet.add(l.manager.toUpperCase().trim());
                 }
             });
 
@@ -130,10 +127,13 @@
 
         function formatDateForMatch(yyyy_mm_dd) {
             if(!yyyy_mm_dd) return '';
-            const parts = yyyy_mm_dd.split('-');
+            const parts = yyyy_mm_dd.split('-'); // [YYYY, MM, DD]
             if(parts.length !== 3) return '';
-            // Match format like D/M/YYYY or DD/MM/YYYY depending on sheets
-            return `${parseInt(parts[2])}/${parseInt(parts[1])}/${parts[0]}`;
+            // Match format dd/MM/yyyy (e.g. 05/08/2026)
+            let dd = parts[2].padStart(2, '0');
+            let mm = parts[1].padStart(2, '0');
+            let yyyy = parts[0];
+            return `${dd}/${mm}/${yyyy}`;
         }
 
         function renderTable(logs) {
@@ -145,8 +145,16 @@
                 return;
             }
 
-            logs.reverse().forEach(row => {
-                let selfieHtml = row.photo ? `<img src="${row.photo}" class="selfie-img">` : `<div style="width:42px;height:42px;background:#333;border-radius:6px;"></div>`;
+            logs.slice().reverse().forEach(row => {
+                let photoUrl = row.photo || '';
+                // Fix google drive view link if necessary
+                if(photoUrl.includes("id=")) {
+                    let fileId = photoUrl.split("id=")[1].split("&")[0];
+                    photoUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                }
+
+                let selfieHtml = photoUrl ? `<img src="${photoUrl}" class="selfie-img" onclick="window.open('${photoUrl}', '_blank')" title="Click to view full size">` : `<div style="width:45px;height:45px;background:#000;border-radius:6px;"></div>`;
+                
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${row.timestamp || ''}</td>
@@ -162,11 +170,10 @@
 
         function filterTable() {
             let searchVal = document.getElementById('searchBox').value.toLowerCase();
-            let dateVal = document.getElementById('dateFilter').value; // YYYY-MM-DD
+            let dateVal = document.getElementById('dateFilter').value;
             
             let filtered = allLogs.filter(row => {
                 let matchName = (row.manager || '').toLowerCase().includes(searchVal) || (row.store || '').toLowerCase().includes(searchVal);
-                
                 let matchDate = true;
                 if(dateVal && searchVal === '') {
                     let formattedMatch = formatDateForMatch(dateVal);
