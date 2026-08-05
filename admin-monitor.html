@@ -33,12 +33,41 @@
         .back-link:hover { text-decoration: underline; }
 
         table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f1f5f9; font-size: 0.92rem; vertical-align: middle; }
         th { background: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.78rem; letter-spacing: 0.5px; }
         tr:hover { background: #f8fafc; }
 
-        .selfie-img { width: 45px; height: 45px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; background: #000; cursor: pointer; }
-        .map-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+        /* 🔥 Optimized Selfie Thumbnail Styling */
+        .selfie-img { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 8px; 
+            object-fit: cover; 
+            border: 2px solid #cbd5e1; 
+            background: #f1f5f9; 
+            cursor: pointer; 
+            transition: transform 0.2s, border-color 0.2s; 
+        }
+        .selfie-img:hover { 
+            transform: scale(1.15); 
+            border-color: #38bdf8; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15); 
+        }
+        
+        .no-pic-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .map-btn { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; padding: 6px 14px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600; display: inline-block; }
         .map-btn:hover { background: #dbeafe; }
 
         .loading { text-align: center; padding: 40px; font-size: 1.1rem; color: #64748b; }
@@ -88,6 +117,18 @@
 
         document.getElementById('dateFilter').valueAsDate = new Date();
 
+        // 🔥 Google Drive URL se File ID nikalna
+        function extractGoogleDriveId(url) {
+            if (!url) return null;
+            let match = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+            match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+            match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+            if (match) return match[1];
+            return null;
+        }
+
         async function fetchAdminData() {
             document.getElementById('loading').style.display = 'block';
             document.getElementById('attendanceTable').style.display = 'none';
@@ -129,7 +170,6 @@
             if(!yyyy_mm_dd) return '';
             const parts = yyyy_mm_dd.split('-'); // [YYYY, MM, DD]
             if(parts.length !== 3) return '';
-            // Match format dd/MM/yyyy (e.g. 05/08/2026)
             let dd = parts[2].padStart(2, '0');
             let mm = parts[1].padStart(2, '0');
             let yyyy = parts[0];
@@ -147,13 +187,19 @@
 
             logs.slice().reverse().forEach(row => {
                 let photoUrl = row.photo || '';
-                // Fix google drive view link if necessary
-                if(photoUrl.includes("id=")) {
-                    let fileId = photoUrl.split("id=")[1].split("&")[0];
-                    photoUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                }
+                let fileId = extractGoogleDriveId(photoUrl);
+                
+                // 🔥 Primary CDN link & Backup Thumbnail link for 100% reliability
+                let displaySrc = fileId ? `https://lh3.googleusercontent.com/d/${fileId}` : photoUrl;
+                let backupSrc = fileId ? `https://drive.google.com/thumbnail?id=${fileId}&sz=w200` : '';
 
-                let selfieHtml = photoUrl ? `<img src="${photoUrl}" class="selfie-img" onclick="window.open('${photoUrl}', '_blank')" title="Click to view full size">` : `<div style="width:45px;height:45px;background:#000;border-radius:6px;"></div>`;
+                let selfieHtml = photoUrl ? `
+                    <img src="${displaySrc}" 
+                         onerror="if(!this.dataset.tried){this.dataset.tried='true';this.src='${backupSrc}';}else{this.style.display='none';}"
+                         class="selfie-img" 
+                         onclick="window.open('${photoUrl}', '_blank')" 
+                         title="Click to view full photo">
+                ` : `<div class="no-pic-box">No Pic</div>`;
                 
                 let tr = document.createElement('tr');
                 tr.innerHTML = `
