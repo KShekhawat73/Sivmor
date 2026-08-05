@@ -886,13 +886,20 @@
             location.reload();
         }
 
-        // 📝 Embedded Attendance App Script Logic
+        // 📝 Embedded Attendance & Admin Routing Logic
         let locationFetched = false;
         let photoCaptured = false;
         let rawMappings = [];
         let stream = null;
 
         function openAttendanceApp() {
+            // Agar user admin hai, toh admin monitor page kholo
+            if (userAccessGlobal === 'admin') {
+                window.location.href = 'admin-monitor.html';
+                return;
+            }
+
+            // Normal manager ke liye embedded attendance form kholo
             document.getElementById('dashboard-content').style.display = 'none';
             document.getElementById('attendance-view').style.display = 'block';
             loadListsDynamicEmbedded();
