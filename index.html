@@ -818,7 +818,7 @@
                     
                     loggedInUserGlobal = userIn;
                     userAccessGlobal = attLower;
-                    assignedAttendanceNameGlobal = attVal; // Storing original case
+                    assignedAttendanceNameGlobal = attVal; 
 
                     localStorage.setItem('allowed_stores', userData.allowed_stores || '');
                     localStorage.setItem('username', userIn);
@@ -987,7 +987,6 @@
                 });
                 storeSelect.disabled = false;
             } else {
-                // Agar mapping me store nahi mila, tab bhi block na ho
                 let userAllowedStore = localStorage.getItem('allowed_stores') || 'GENERAL';
                 let defaultStore = userAllowedStore.toUpperCase();
                 storeSelect.innerHTML = `<option value="${defaultStore}" selected>${defaultStore}</option>`;
@@ -1000,7 +999,7 @@
             updateStoresForManagerEmbedded(e.target.value);
         });
 
-        // 🔥 ADVANCED GPS & LOCATION ALERT SYSTEM
+        // 🔥 HIGH ACCURACY GPS TRIGGER (Triggers Android "Turn on Location" Native Popup)
         document.getElementById('locationBtn').addEventListener('click', () => {
             const statusDiv = document.getElementById('status');
             const locationBtn = document.getElementById('locationBtn');
@@ -1015,6 +1014,7 @@
                 return;
             }
 
+            // enableHighAccuracy: true Android ke location accuracy system dialog ko trigger karta hai
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     document.getElementById('latitude').value = position.coords.latitude;
@@ -1032,18 +1032,13 @@
                     
                     if (err.code === 1) { // PERMISSION_DENIED
                         statusDiv.innerText = "❌ Location Permission Blocked!";
-                        alert("⚠️ Location Permission Blocked!\n\nAapne browser ko location access nahi diya hai. Kripya browser ke address bar me 'Lock 🔒' icon par click karke Location Allow karein.");
-                    } 
-                    else if (err.code === 2 || err.code === 3) { // POSITION_UNAVAILABLE or TIMEOUT
-                        statusDiv.innerText = "⚠️ Phone ka GPS / Location OFF hai!";
-                        alert("⚠️ Phone ka GPS OFF Hai!\n\n1. Kripya upar notification bar nicha karke apne phone ki 'Location / GPS' ON karein.\n2. ON karne ke baad wapas 'Step 1: Verify Live GPS' button par click karein.");
+                        alert("⚠️ Location Permission Blocked!\n\nAapne browser ko location access nahi diya hai. Kripya address bar ke 'Lock 🔒' icon par click karke Location 'Allow' karein.");
                     } 
                     else {
-                        statusDiv.innerText = "❌ GPS Error! Location ON karein.";
-                        alert("⚠️ GPS error aayi hai. Kripya phone ki location ON karke dobara try karein.");
+                        statusDiv.innerText = "⚠️ Location / GPS signal nahi mila. Kripya Location ON karein.";
                     }
                 },
-                { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         });
 
