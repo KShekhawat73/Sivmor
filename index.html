@@ -290,6 +290,7 @@
         #app-stock-value { --accent-color: #22d3ee; --accent-glow: rgba(34, 211, 238, 0.3); }
         #app-sales { --accent-color: #a855f7; --accent-glow: rgba(168, 85, 247, 0.35); }
         #app-target-tracker { --accent-color: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.35); }
+        #app-sbi-cashback { --accent-color: #10b981; --accent-glow: rgba(16, 185, 129, 0.35); }
 
         /* 📝 Attendance Section Embedded Styling */
         #attendance-view { display: none; width: 100%; max-width: 450px; margin: 0 auto; background: white; color: #333; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 20; position: relative; }
@@ -418,6 +419,16 @@
                 </div>
                 <h2>Customer Target Tracker</h2>
                 <p>Submit live customer proof images for Instagram follows, YouTube subscribers, and Google reviews.</p>
+            </a>
+
+            <!-- 7. SBI Card Cashback -->
+            <a href="https://kshekhawat73.github.io/Sbi_Card_Cashback/" target="_blank" class="card" id="app-sbi-cashback">
+                <div class="card-header-flex">
+                    <span class="badge">Offers & Cashback</span>
+                    <div class="card-icon">🎁</div>
+                </div>
+                <h2>SBI Card Cashback</h2>
+                <p>Calculate and track SBI credit card cashback offers and benefits easily.</p>
             </a>
         </div>
     </div>
@@ -626,7 +637,7 @@
 
             const orbs = [];
             const pulses = [];
-            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7', '#f43f5e'];
+            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7', '#f43f5e', '#10b981'];
 
             window.addEventListener('click', (e) => {
                 if (document.getElementById('dashboard-content').style.display === 'none') return;
@@ -751,6 +762,10 @@
                 let instaIdx = headers.findIndex(h => h.includes("insta") || h.includes("target") || h.includes("follow") || h.includes("ig") || h.includes("yt") || h.includes("google") || h.includes("marketing"));
                 if (instaIdx === -1) instaIdx = 8; 
 
+                // 🔥 New Logic: SBI Card Cashback Column Index
+                let sbiIdx = headers.findIndex(h => h.includes("sbi") || h.includes("cashback"));
+                if (sbiIdx === -1) sbiIdx = 9; // Fallback to column J
+
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
                     
@@ -767,7 +782,8 @@
                         stock_value: (currentline[valIdx !== -1 ? valIdx : 6] || "no").toLowerCase(),
                         allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 4] || "").toLowerCase(), 
                         sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase(),
-                        insta_access: (currentline[instaIdx] || "no").toLowerCase() 
+                        insta_access: (currentline[instaIdx] || "no").toLowerCase(),
+                        sbi_cashback: (currentline[sbiIdx] || "no").toLowerCase() // Read sbi logic
                     };
                 }
                 return users;
@@ -807,7 +823,8 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no') {
+                    // Adding new SBI check in deactivated check
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no' && userData.sbi_cashback !== 'yes') {
                         msg.style.color = "#fbbf24";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -865,6 +882,11 @@
                         targetTrackerCard.href = "https://kshekhawat73.github.io/target-tracker/?user=" + encodeURIComponent(userIn);
                     } else {
                         targetTrackerCard.style.display = 'none';
+                    }
+
+                    // 🔥 New Logic: Show SBI Card Cashback option if 'yes' in Sheet
+                    if (userData.sbi_cashback === 'yes') {
+                        document.getElementById('app-sbi-cashback').style.display = 'block';
                     }
                     
                     enable3DCards();
