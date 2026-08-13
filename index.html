@@ -291,6 +291,8 @@
         #app-sales { --accent-color: #a855f7; --accent-glow: rgba(168, 85, 247, 0.35); }
         #app-target-tracker { --accent-color: #f43f5e; --accent-glow: rgba(244, 63, 94, 0.35); }
         #app-sbi-cashback { --accent-color: #f97316; --accent-glow: rgba(249, 115, 22, 0.35); }
+        /* 🔥 New Card Theme (Indigo) */
+        #app-monthly-tracker { --accent-color: #6366f1; --accent-glow: rgba(99, 102, 241, 0.35); }
 
         /* 📝 Attendance Section Embedded Styling */
         #attendance-view { display: none; width: 100%; max-width: 450px; margin: 0 auto; background: white; color: #333; padding: 30px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); z-index: 20; position: relative; }
@@ -429,6 +431,16 @@
                 </div>
                 <h2>SBI Card Cashback</h2>
                 <p>Calculate and track SBI credit card cashback offers and benefits easily.</p>
+            </a>
+
+            <!-- 8. Monthly Target Tracker (NEW) -->
+            <a href="https://kshekhawat73.github.io/monthly-target-tracker/" target="_blank" class="card" id="app-monthly-tracker">
+                <div class="card-header-flex">
+                    <span class="badge">Performance</span>
+                    <div class="card-icon">📆</div>
+                </div>
+                <h2>Monthly Target Tracker</h2>
+                <p>Track, analyze, and manage monthly targets and brand-wise achievements.</p>
             </a>
         </div>
     </div>
@@ -637,7 +649,7 @@
 
             const orbs = [];
             const pulses = [];
-            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7', '#f43f5e', '#f97316'];
+            const colors = ['#38bdf8', '#34d399', '#fbbf24', '#22d3ee', '#a855f7', '#f43f5e', '#f97316', '#6366f1'];
 
             window.addEventListener('click', (e) => {
                 if (document.getElementById('dashboard-content').style.display === 'none') return;
@@ -762,9 +774,12 @@
                 let instaIdx = headers.findIndex(h => h.includes("insta") || h.includes("target") || h.includes("follow") || h.includes("ig") || h.includes("yt") || h.includes("google") || h.includes("marketing"));
                 if (instaIdx === -1) instaIdx = 8; 
 
-                // 🔥 New Logic: SBI Card Cashback Column Index
                 let sbiIdx = headers.findIndex(h => h.includes("sbi") || h.includes("cashback"));
-                if (sbiIdx === -1) sbiIdx = 9; // Fallback to column J
+                if (sbiIdx === -1) sbiIdx = 9; 
+
+                // 🔥 New Logic: Monthly Target Tracker Column Index (Finds Column K)
+                let trackerIdx = headers.findIndex(h => h.includes("monthly") || h.includes("monthly-target"));
+                if (trackerIdx === -1) trackerIdx = 10; // Fallback to column K (index 10)
 
                 for (let i = 1; i < lines.length; i++) {
                     if (!lines[i].trim()) continue;
@@ -783,7 +798,9 @@
                         allowed_stores: (currentline[storeIdx !== -1 ? storeIdx : 4] || "").toLowerCase(), 
                         sales: (currentline[salesIdx !== -1 ? salesIdx : 7] || "no").toLowerCase(),
                         insta_access: (currentline[instaIdx] || "no").toLowerCase(),
-                        sbi_cashback: (currentline[sbiIdx] || "no").toLowerCase() // Read sbi logic
+                        sbi_cashback: (currentline[sbiIdx] || "no").toLowerCase(),
+                        // Read Monthly Tracker Logic
+                        monthly_tracker: (currentline[trackerIdx] || "no").toLowerCase() 
                     };
                 }
                 return users;
@@ -823,8 +840,8 @@
                     const attVal = userData.attendance;
                     const attLower = attVal.toLowerCase();
 
-                    // Adding new SBI check in deactivated check
-                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no' && userData.sbi_cashback !== 'yes') {
+                    // Includes check for monthly_tracker
+                    if (attVal === '' && userData.outstanding !== 'yes' && userData.stock !== 'yes' && userData.stock_value !== 'yes' && userData.sales !== 'yes' && userData.insta_access === 'no' && userData.sbi_cashback !== 'yes' && userData.monthly_tracker !== 'yes') {
                         msg.style.color = "#fbbf24";
                         msg.innerText = "🔒 Profile Access Deactivated.\nPlease contact the admin to approve or assign your role.";
                         return;
@@ -884,9 +901,15 @@
                         targetTrackerCard.style.display = 'none';
                     }
 
-                    // 🔥 New Logic: Show SBI Card Cashback option if 'yes' in Sheet
                     if (userData.sbi_cashback === 'yes') {
                         document.getElementById('app-sbi-cashback').style.display = 'block';
+                    }
+
+                    // 🔥 Show New Monthly Tracker Card
+                    if (userData.monthly_tracker === 'yes') {
+                        const monthlyCard = document.getElementById('app-monthly-tracker');
+                        monthlyCard.style.display = 'block';
+                        monthlyCard.href = `https://kshekhawat73.github.io/monthly-target-tracker/?user=${encodeURIComponent(userIn)}&stores=${encodeURIComponent(userData.allowed_stores || '')}`;
                     }
                     
                     enable3DCards();
@@ -911,7 +934,6 @@
             location.reload();
         }
 
-        // 📝 Embedded Attendance & Admin Routing Logic (100% Flicker-Free)
         let locationFetched = false;
         let photoCaptured = false;
         let rawMappings = [];
@@ -923,7 +945,6 @@
                 return;
             }
 
-            // 🔥 Instant Hide for regular users: ZERO loading flash of dropdowns!
             if (userAccessGlobal !== 'all' && userAccessGlobal !== 'admin') {
                 document.getElementById('managerLabel').style.display = 'none';
                 document.getElementById('managerName').style.display = 'none';
@@ -963,13 +984,11 @@
                 const userDatabaseValue = userAccessGlobal; 
                 const cleanLoggedInUser = loggedInUserGlobal.trim();
 
-                // 🔥 Fix: Normal Manager ke liye drop-downs aur badge BILKUL NAHI dikhenge
                 if (cleanLoggedInUser && userDatabaseValue !== 'all' && userDatabaseValue !== 'admin') {
                     let mappedManagerName = assignedAttendanceNameGlobal || userDatabaseValue.toUpperCase();
                     managerSelect.innerHTML = `<option value="${mappedManagerName}" selected>${mappedManagerName}</option>`;
                     updateStoresForManagerEmbedded(mappedManagerName);
                 } else {
-                    // Admin ya All access ke liye Dropdowns dikhenge
                     managerSelect.innerHTML = '<option value="">-- Select Your Name --</option>';
                     uniqueManagers.forEach(name => {
                         managerSelect.innerHTML += `<option value="${name}">${name}</option>`;
@@ -1021,7 +1040,6 @@
             updateStoresForManagerEmbedded(e.target.value);
         });
 
-        // 🔥 HIGH ACCURACY GPS TRIGGER (Triggers Android "Turn on Location" Native Popup)
         document.getElementById('locationBtn').addEventListener('click', () => {
             const statusDiv = document.getElementById('status');
             const locationBtn = document.getElementById('locationBtn');
@@ -1036,7 +1054,6 @@
                 return;
             }
 
-            // enableHighAccuracy: true Android ke location accuracy system dialog ko trigger karta hai
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     document.getElementById('latitude').value = position.coords.latitude;
@@ -1052,7 +1069,7 @@
                     statusDiv.style.color = "#dc3545";
                     statusDiv.style.background = "rgba(220, 53, 69, 0.15)";
                     
-                    if (err.code === 1) { // PERMISSION_DENIED
+                    if (err.code === 1) {
                         statusDiv.innerText = "❌ Location Permission Blocked!";
                         alert("⚠️ Location Permission Blocked!\n\nAapne browser ko location access nahi diya hai. Kripya address bar ke 'Lock 🔒' icon par click karke Location 'Allow' karein.");
                     } 
