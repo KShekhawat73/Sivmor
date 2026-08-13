@@ -118,11 +118,16 @@
             50% { box-shadow: 0 0 35px rgba(255, 255, 255, 0.4); border-color: #FFFFFF; }
             100% { box-shadow: 0 0 35px rgba(19, 136, 8, 0.5); border-color: #138808; }
         }
-        .ind-greeting {
+        
+        .ind-greeting-container {
+            display: none; /* Changed by JS */
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .ind-greeting-text {
             font-size: 1.05rem;
             font-weight: 800;
-            margin-bottom: 20px;
-            display: none;
             background: linear-gradient(90deg, #FF9933 0%, #FFFFFF 50%, #138808 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -130,13 +135,20 @@
             letter-spacing: 1.5px;
             animation: textShine 2s linear infinite;
         }
+        .ind-flag {
+            height: 20px;
+            margin-left: 10px;
+            border-radius: 2px;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+        }
+        
         @keyframes textShine {
             0% { filter: hue-rotate(0deg) brightness(1); }
             50% { filter: hue-rotate(15deg) brightness(1.2); }
             100% { filter: hue-rotate(0deg) brightness(1); }
         }
 
-        /* ✈️ Independence Day Jets Animation */
+        /* ✈️ Independence Day Jets & Giant Flag Animation */
         #independence-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 9999; display: none; overflow: hidden;
@@ -145,28 +157,53 @@
         .jet-container {
             position: absolute; left: -20%;
             display: flex; align-items: center;
-            animation: flyAcross 4.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+            animation: flyAcross 5.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
         }
         .jet-container svg { 
-            width: 55px; height: auto; 
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6)); z-index: 2;
+            width: 60px; height: auto; 
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.8)); z-index: 4;
         }
         .smoke-trail {
-            height: 18px; width: 1800px; 
+            height: 18px; width: 2500px; 
             position: absolute; right: 85%; top: 50%; transform: translateY(-50%);
-            filter: blur(10px); z-index: 1; opacity: 0.85;
+            filter: blur(10px); z-index: 2; opacity: 0.85;
             background: linear-gradient(to right, transparent, var(--smoke-color));
         }
         .jet-top { top: 25%; animation-delay: 0.1s; --smoke-color: #FF9933; }
         .jet-mid { top: 45%; animation-delay: 0.4s; --smoke-color: #FFFFFF; }
         .jet-bot { top: 65%; animation-delay: 0.7s; --smoke-color: #138808; }
 
-        @keyframes flyAcross {
-            0% { left: -30%; transform: scale(0.9); }
-            50% { transform: scale(1.1); }
-            100% { left: 120%; transform: scale(0.9); }
+        /* 🇮🇳 Giant Floating Flag attached to middle jet */
+        .flag-tether {
+            position: absolute;
+            right: 140px; /* Space behind the jet */
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1; /* Behind smoke and jet */
+            opacity: 0.95;
+        }
+        .giant-flag {
+            width: 550px; /* Extremely large size for full screen feel */
+            max-width: 80vw;
+            height: auto;
+            border-radius: 4px;
+            box-shadow: -15px 25px 45px rgba(0,0,0,0.6);
+            transform-origin: left center;
+            animation: flagFlutter 0.9s ease-in-out infinite alternate;
         }
 
+        @keyframes flagFlutter {
+            0% { transform: perspective(800px) rotateY(12deg) rotateX(2deg) skewY(-2deg); }
+            100% { transform: perspective(800px) rotateY(-8deg) rotateX(-2deg) skewY(2deg); }
+        }
+
+        @keyframes flyAcross {
+            0% { left: -50%; transform: scale(0.85); }
+            50% { transform: scale(1.15); }
+            100% { left: 130%; transform: scale(0.85); }
+        }
+
+        /* Auth Form Styles */
         .auth-box input { 
             width: 100%; 
             padding: 14px 16px; 
@@ -383,16 +420,20 @@
 </head>
 <body>
 
-    <!-- ✈️ Independence Day Jet Overlay -->
+    <!-- ✈️ Independence Day Jet & Giant Flag Overlay -->
     <div id="independence-overlay">
         <!-- Top Jet (Saffron) -->
         <div class="jet-container jet-top">
             <div class="smoke-trail"></div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#cbd5e1"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></svg>
         </div>
-        <!-- Middle Jet (White) -->
+        <!-- Middle Jet (White) & Giant Flag -->
         <div class="jet-container jet-mid">
             <div class="smoke-trail"></div>
+            <!-- 🇮🇳 The Giant Floating Flag -->
+            <div class="flag-tether">
+                <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" class="giant-flag" alt="Indian Flag">
+            </div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#cbd5e1"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></svg>
         </div>
         <!-- Bottom Jet (Green) -->
@@ -416,8 +457,11 @@
             <h2 class="auth-title">SiVMOR Workspace</h2>
             <p class="auth-subtitle">Centralized Operations & Analytics Portal</p>
 
-            <!-- 🇮🇳 Dynamic Greeting Text -->
-            <div class="ind-greeting" id="ind-greeting">Happy Independence Day 🇮🇳</div>
+            <!-- 🇮🇳 Dynamic Greeting Text With Real Flag Image -->
+            <div class="ind-greeting-container" id="ind-greeting">
+                <span class="ind-greeting-text">Happy Independence Day</span>
+                <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" class="ind-flag" alt="Indian Flag">
+            </div>
 
             <input type="text" id="username" placeholder="Username">
             <input type="password" id="password" placeholder="Password">
@@ -514,7 +558,7 @@
                 <p>Calculate and track SBI credit card cashback offers and benefits easily.</p>
             </a>
 
-            <!-- 8. Monthly Target Tracker (NEW) -->
+            <!-- 8. Monthly Target Tracker -->
             <a href="https://kshekhawat73.github.io/monthly-target-tracker/" target="_blank" class="card" id="app-monthly-tracker">
                 <div class="card-header-flex">
                     <span class="badge">Performance</span>
@@ -588,22 +632,20 @@
         // 🔥 DATE TIMER LOGIC FOR 15 AUG ANIMATION 🔥
         function checkIndependenceDay() {
             const d = new Date();
-            // Month 7 is August. Valid for 13th, 14th, and 15th August ONLY.
             if (d.getMonth() === 7 && (d.getDate() >= 13 && d.getDate() <= 15)) {
                 const authBox = document.querySelector('.auth-box');
                 if(authBox) authBox.classList.add('independence-glow');
                 const indText = document.getElementById('ind-greeting');
-                if(indText) indText.style.display = 'block';
+                if(indText) indText.style.display = 'flex';
             }
         }
         
         // Setup login screen animation on load
         document.addEventListener("DOMContentLoaded", checkIndependenceDay);
 
-        // Jets Flying Animation
+        // Jets Flying Animation Trigger
         function triggerIndependenceAnimation() {
             const d = new Date();
-            // Checking if current date is 13, 14 or 15 August
             if (d.getMonth() === 7 && (d.getDate() >= 13 && d.getDate() <= 15)) {
                 const overlay = document.getElementById('independence-overlay');
                 if(overlay) {
@@ -611,7 +653,7 @@
                     setTimeout(() => {
                         overlay.style.opacity = '0';
                         setTimeout(() => overlay.style.display = 'none', 1500);
-                    }, 4500); // 4.5 sec ke baad fade ho jayegi
+                    }, 5500); // Increased time slightly for the giant flag to fully cross
                 }
             }
         }
@@ -959,7 +1001,7 @@
                     document.getElementById('auth-screen').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'flex';
                     
-                    // 🔥 TRIGGERS JETS ON SUCCESSFUL LOGIN 🔥
+                    // 🔥 TRIGGERS JETS & GIANT FLAG ON SUCCESSFUL LOGIN 🔥
                     triggerIndependenceAnimation();
                     
                     loggedInUserGlobal = userIn;
