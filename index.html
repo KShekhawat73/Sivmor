@@ -123,7 +123,7 @@
         }
         
         .ind-greeting-container {
-            display: none; /* Changed by JS */
+            display: none; 
             justify-content: center;
             align-items: center;
             margin-bottom: 20px;
@@ -151,7 +151,7 @@
             100% { filter: hue-rotate(0deg) brightness(1); }
         }
 
-        /* ✈️ Independence Day Jets & Giant Flag Animation */
+        /* ✈️ Independence Day Jets Animation */
         #independence-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             pointer-events: none; z-index: 9999; display: none; overflow: hidden;
@@ -176,34 +176,65 @@
         .jet-mid { top: 45%; animation-delay: 0.4s; --smoke-color: #FFFFFF; }
         .jet-bot { top: 65%; animation-delay: 0.7s; --smoke-color: #138808; }
 
-        /* 🇮🇳 Giant Floating Flag attached to middle jet */
+        @keyframes flyAcross {
+            0% { left: -50%; transform: scale(0.85); }
+            50% { transform: scale(1.15); }
+            100% { left: 130%; transform: scale(0.85); }
+        }
+
+        /* 🔥 Advanced 3D Waving Flag Logic 🔥 */
         .flag-tether {
             position: absolute;
             right: 140px; /* Space behind the jet */
             top: 50%;
             transform: translateY(-50%);
-            z-index: 1; /* Behind smoke and jet */
-            opacity: 0.95;
+            z-index: 1;
+            perspective: 1200px; /* Gives the 3D depth to the flag */
         }
-        .giant-flag {
-            width: 550px; /* Extremely large size for full screen feel */
-            max-width: 80vw;
-            height: auto;
+        .flag-fabric {
+            position: relative;
+            width: 550px;
+            max-width: 75vw;
             border-radius: 4px;
             box-shadow: -15px 25px 45px rgba(0,0,0,0.6);
-            transform-origin: left center;
-            animation: flagFlutter 0.9s ease-in-out infinite alternate;
+            /* Attached to the jet on the right side, so the left side flaps freely */
+            transform-origin: right center; 
+            animation: flagFlutter 0.6s ease-in-out infinite alternate;
+            overflow: hidden;
+        }
+        .flag-fabric img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* Rippling Wind/Light overlay on the fabric */
+        .wind-ripples {
+            position: absolute;
+            top: 0; left: 0; width: 200%; height: 100%;
+            background: linear-gradient(
+                90deg, 
+                rgba(0,0,0,0) 0%, 
+                rgba(255,255,255,0.25) 25%, 
+                rgba(0,0,0,0.25) 50%, 
+                rgba(255,255,255,0.25) 75%, 
+                rgba(0,0,0,0) 100%
+            );
+            background-size: 50% 100%;
+            /* Wind ripples moving from jet (right) to tail (left) */
+            animation: windMove 0.6s linear infinite;
+            pointer-events: none;
+            mix-blend-mode: overlay;
         }
 
+        /* 3D Flapping Keyframes */
         @keyframes flagFlutter {
-            0% { transform: perspective(800px) rotateY(12deg) rotateX(2deg) skewY(-2deg); }
-            100% { transform: perspective(800px) rotateY(-8deg) rotateX(-2deg) skewY(2deg); }
+            0% { transform: rotateY(-25deg) rotateZ(-2deg) skewY(3deg); }
+            100% { transform: rotateY(20deg) rotateZ(2deg) skewY(-3deg); }
         }
-
-        @keyframes flyAcross {
-            0% { left: -50%; transform: scale(0.85); }
-            50% { transform: scale(1.15); }
-            100% { left: 130%; transform: scale(0.85); }
+        /* Moving Ripples Keyframes */
+        @keyframes windMove {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
         }
 
         /* Auth Form Styles */
@@ -423,19 +454,22 @@
 </head>
 <body>
 
-    <!-- ✈️ Independence Day Jet & Giant Flag Overlay -->
+    <!-- ✈️ Independence Day Jet & Waving Flag Overlay -->
     <div id="independence-overlay">
         <!-- Top Jet (Saffron) -->
         <div class="jet-container jet-top">
             <div class="smoke-trail"></div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#cbd5e1"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></svg>
         </div>
-        <!-- Middle Jet (White) & Giant Flag -->
+        <!-- Middle Jet (White) & Realistic Waving Flag -->
         <div class="jet-container jet-mid">
             <div class="smoke-trail"></div>
-            <!-- 🇮🇳 The Giant Floating Flag -->
+            <!-- 🇮🇳 The 3D Waving Fabric Flag -->
             <div class="flag-tether">
-                <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" class="giant-flag" alt="Indian Flag">
+                <div class="flag-fabric">
+                    <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" alt="Indian Flag">
+                    <div class="wind-ripples"></div>
+                </div>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" fill="#cbd5e1"><path d="M482.3 192c34.2 0 93.7 29 93.7 64c0 36-59.5 64-93.7 64l-116.6 0L265.2 495.9c-5.7 10-16.3 16.1-27.8 16.1l-56.2 0c-10.6 0-18.3-10.2-15.4-20.4l49-171.6L112 320 68.8 377.6c-3 4-7.8 6.4-12.8 6.4l-42 0c-7.8 0-14-6.3-14-14c0-1.3 .2-2.6 .5-3.9L32 256 .5 145.9c-.4-1.3-.5-2.6-.5-3.9c0-7.8 6.3-14 14-14l42 0c5 0 9.8 2.4 12.8 6.4L112 192l102.9 0-49-171.6C162.9 10.2 170.6 0 181.2 0l56.2 0c11.5 0 22.1 6.2 27.8 16.1L365.7 192l116.6 0z"/></svg>
         </div>
@@ -466,10 +500,12 @@
                 <img src="https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg" class="ind-flag" alt="Indian Flag">
             </div>
 
-            <input type="text" id="username" placeholder="Username">
-            <!-- 🔥 Anti-Phishing Password Field Trick 🔥 -->
-            <input type="text" id="password" placeholder="Password" style="-webkit-text-security: disc;">
-            <button onclick="handleLogin()">Login</button>
+            <!-- 🔥 Proper Form for Browser Autofill & Password Manager 🔥 -->
+            <form onsubmit="event.preventDefault(); handleLogin();" style="width: 100%; margin: 0; padding: 0;">
+                <input type="text" id="username" name="username" placeholder="Username" autocomplete="username" required>
+                <input type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" required>
+                <button type="submit">Login</button>
+            </form>
             
             <div class="register-container">
                 Don't have an account? <span onclick="showRegisterNotice()" class="register-link">Register Here</span>
